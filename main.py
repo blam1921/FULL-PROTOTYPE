@@ -64,9 +64,9 @@ def log_event(event_name, detail=""):
             f.write(f"{datetime.now()}, {event_name}, {detail}\n")
 
 # 📍 Main App Content
-st.title("💧 LifeDrop Community Support System")
+st.title("💧 WaterWatch Community Support System")
 st.markdown("""
-Welcome to **LifeDrop**, a community support hub for accessing and reporting water resources, meals, showers, and clinics.
+Welcome to **WaterWatch**, a community support hub for accessing and reporting water resources, meals, showers, and clinics.
 
 Use the sidebar to navigate:
 - Create and view alerts
