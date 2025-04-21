@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 
-st.set_page_config(page_title="Report a Water Source", layout="wide")
-st.title("🚰 Report a Water Source")
+st.set_page_config(page_title="Log a Water Source", layout="wide")
+st.title("🚰 Log a Water Source")
 
 st.markdown("""
 Help your community by sharing information about local water sources. 
@@ -22,7 +22,7 @@ This tool is for awareness only — we do not verify the safety of any water.
 IMAGE_DIR = "uploaded_images"
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
-# Initialize a session state list to store reports if not already present
+# Initialize a session state list to store logs if not already present
 if "reports" not in st.session_state:
     st.session_state.reports = []
 if "uploader_key" not in st.session_state:
@@ -155,14 +155,14 @@ with report_tab:
                 "photo_path": photo_path,
             }
             st.session_state.reports.append(report)
-            st.success("✅ Your report has been submitted. Thank you for keeping the community informed!")
+            st.success("✅ Your report has been submitted.")
             
 # Display reports summary below the form
 if st.session_state.reports:
     st.markdown("---")
 
     with gallery_tab:
-        st.header("🖼️ Community Gallery of Reports")
+        st.header("🖼️ Gallery Log")
 
         # Convert session state reports to a DataFrame
         df = pd.DataFrame(st.session_state.reports)
@@ -175,7 +175,7 @@ if st.session_state.reports:
         df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
 
         # --- Filter Section ---
-        st.subheader("🔎 Filter Reports")
+        st.subheader("🔎 Filter Logs")
 
         # Drop missing ZIP codes and get unique values
         zipcodes = df['zipcode'].dropna().unique()
