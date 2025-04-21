@@ -12,8 +12,7 @@ st.set_page_config(page_title="Log a Water Source", layout="wide")
 st.title("🚰 Log a Water Source")
 
 st.markdown("""
-Help your community by sharing information about local water sources. 
-This tool is for awareness only — we do not verify the safety of any water.
+Log information about water sources in your area for your own tracking and analysis.
 """)
 
 
