@@ -1,0 +1,11 @@
+Libraries used
+streamlit
+pandas
+pydeck
+requests
+math
+os
+openai
+datetime
+PIL import Image
+matplotlib.pyplot
