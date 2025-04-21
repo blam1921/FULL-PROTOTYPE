@@ -5,21 +5,19 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 import gspread
-import json
-
 from oauth2client.service_account import ServiceAccountCredentials
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # Google Sheets Setup
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
-CREDS_FILE = st.secrets["gsheets"]
+SPREADSHEET_ID = st.secrets["spreadsheet_id"]
 SHEET_NAME = "Water-Report"
 
 # Setup Google Sheets connection
 def connect_to_gsheets():
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(CREDS_FILE, SCOPE)
+    creds_dict = st.secrets["gsheets"]  # 👈 this accesses the dict stored in secrets.toml
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
     return sheet
