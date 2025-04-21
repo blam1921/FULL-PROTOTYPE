@@ -66,11 +66,11 @@ def log_event(event_name, detail=""):
 # 📍 Main App Content
 st.title("💧 WaterWatch Community Support System")
 st.markdown("""
-Welcome to **WaterWatch**, a community support hub for accessing and reporting water resources, meals, showers, and clinics.
+Welcome to **WaterWatch**, a community support hub for accessing and logging water resources, meals, showers, and clinics.
 
 Use the sidebar to navigate:
 - Create and view alerts
-- Report water issues
+- Log water issues
 - View clean water locations and tips
 """)
 
