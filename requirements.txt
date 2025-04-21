@@ -4,3 +4,5 @@ requests
 openai
 Pillow
 matplotlib
+gspread
+oauth2client
