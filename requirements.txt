@@ -1,11 +1,10 @@
-Libraries used
 streamlit
-pandas
-pydeck
+datetime
 requests
-math
 os
 openai
-datetime
-PIL import Image
+pandas 
+pydeck
+math
 matplotlib.pyplot
+Image
