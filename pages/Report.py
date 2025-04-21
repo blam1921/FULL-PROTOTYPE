@@ -19,7 +19,7 @@ SHEET_NAME = "Water-Report"
 
 # Setup Google Sheets connection
 def connect_to_gsheets():
-    creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, SCOPE)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(CREDS_FILE, SCOPE)
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
     return sheet
