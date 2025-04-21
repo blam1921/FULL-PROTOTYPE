@@ -14,7 +14,7 @@ if "alerts" not in st.session_state:
     st.session_state.alerts = []
 
 st.set_page_config(layout="wide")
-st.title("💧 LifeDrop - Community Alert System")
+st.title("💧 WaterWatch - Community Alert System")
 st.caption("Manage and send alerts for water, meals, showers, and clinics.")
 
 # Add New Resource
