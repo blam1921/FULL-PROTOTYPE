@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime
 
-st.set_page_config(page_title="LifeDrop Community", layout="wide")
+st.set_page_config(page_title="WaterWatch Community", layout="wide")
 
 # 🔹 Global Theme Styling
 st.markdown("""
@@ -36,7 +36,7 @@ if not st.session_state.consent_given:
             <li>No personal data is stored.</li>
             <li>Your contributions help support the community.</li>
         </ul>
-        <p><b>Would you like to allow anonymous usage data to be collected to improve LifeDrop?</b></p>
+        <p><b>Would you like to allow anonymous usage data to be collected to improve WaterWatch?</b></p>
     </div>
     """, unsafe_allow_html=True)
 
