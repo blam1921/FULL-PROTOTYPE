@@ -11,7 +11,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # Google Sheets Setup
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-SPREADSHEET_ID = st.secrets["spreadsheet_id"]
+SPREADSHEET_ID = st.secrets["SPREADSHEET_ID"]
 SHEET_NAME = "Water-Report"
 
 # Setup Google Sheets connection
