@@ -40,13 +40,23 @@ report_tab, gallery_tab, table_tab, trends_tab, ai_analysis_tab = st.tabs(
 with report_tab:
     st.subheader("📝 Submit a Water Report")
     with st.form("report_form"):
-        address = st.text_input("📍 Address")
-        zipcode = st.text_input("🏷️ Zipcode")
-        description = st.text_area("Description")
-        concerns = st.multiselect("Concerns", ["Discoloration", "Foul smell", "Foam on surface", "Bugs or larvae", "Near industrial area", "Trash nearby", "Other"])
-        source_type = st.selectbox("Water Source Type", ["Faucet", "River/Stream", "Pipe Leak", "Fountain", "Rainwater Pool", "Other"])
-        used = st.radio("Did you use it?", ["Yes", "No"])
-        symptoms = st.text_input("Symptoms after use (optional)")
+        st.subheader("🗺️ Location Details")
+        address = st.text_input("Address or general location", placeholder="123 Riverside Blvd, City, State")
+        st.subheader("📍 Zip Code")
+        zipcode = st.text_input("Zip Code", placeholder="Enter zip code")
+        st.subheader("📷 Optional Photo Upload")
+        photo = st.file_uploader("Upload a photo (optional)", type=["jpg", "jpeg", "png"])
+        st.subheader("📝 Description")
+        description = st.text_area("What does the water look/smell like? Is it flowing or still?", max_chars=300)
+        st.subheader("🚩 Concerns")
+        concerns = st.multiselect(
+            "Select any observed issues:",
+            ["Discoloration", "Foul smell", "Foam on surface", "Bugs or larvae", "Near industrial area", "Trash nearby"]
+        )
+        st.subheader("🧭 Water Source Type")
+        source_type = st.selectbox("Choose type of source:", ["Faucet", "River/Stream", "Pipe Leak", "Fountain", "Rainwater Pool", "Other"])
+        used = st.radio("Did you use this water?", ["Yes", "No"])
+        symptoms = st.text_input("Any symptoms after use? (optional)")
 
         submitted = st.form_submit_button("Submit Report")
         if submitted:
