@@ -44,8 +44,6 @@ with report_tab:
         address = st.text_input("Address or general location", placeholder="123 Riverside Blvd, City, State")
         st.subheader("📍 Zip Code")
         zipcode = st.text_input("Zip Code", placeholder="Enter zip code")
-        st.subheader("📷 Optional Photo Upload")
-        photo = st.file_uploader("Upload a photo (optional)", type=["jpg", "jpeg", "png"])
         st.subheader("📝 Description")
         description = st.text_area("What does the water look/smell like? Is it flowing or still?", max_chars=300)
         st.subheader("🚩 Concerns")
