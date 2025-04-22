@@ -1,8 +1,8 @@
 streamlit
-pandas
 requests
 openai
-Pillow
+pandas
+pydeck
+streamlit-gsheets
 matplotlib
-gspread
-oauth2client
+Pillow
