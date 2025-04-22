@@ -70,7 +70,7 @@ Welcome to **WaterWatch**, a community support hub for accessing and logging wat
 
 Use the sidebar to navigate:
 - Create and view alerts
-- Log water issues
+- Report water issues
 - View clean water locations and tips
 """)
 
