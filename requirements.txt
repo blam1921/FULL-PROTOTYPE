@@ -3,6 +3,6 @@ requests
 openai
 pandas
 pydeck
-streamlit-gsheets
-matplotlib
 Pillow
+matplotlib
+streamlit-gsheets
