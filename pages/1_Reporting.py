@@ -32,8 +32,8 @@ def load_data():
 
 
 # Tabs
-report_tab, gallery_tab, table_tab, trends_tab, ai_analysis_tab = st.tabs(
-    ["📋 Report", "🖼️ Gallery", "📊 Tabular View", "📈 Community Trends", "🤖AI Analysis"]
+report_tab, gallery_tab, table_tab, trends_tab = st.tabs(
+    ["📋 Report", "🖼️ Gallery", "📊 Tabular View", "📈 Community Trends"]
 )
 
 # REPORT TAB
