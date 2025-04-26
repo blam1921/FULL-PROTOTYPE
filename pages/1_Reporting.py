@@ -49,7 +49,7 @@ with report_tab:
         st.subheader("🚩 Concerns")
         concerns = st.multiselect(
             "Select any observed issues:",
-            ["Discoloration", "Foul smell", "Foam on surface", "Bugs or larvae", "Near industrial area", "Trash nearby"]
+            ["Discoloration", "Foul smell", "Foam on surface", "Bugs or larvae", "Near industrial area", "Trash nearby", "Other"]
         )
         st.subheader("🧭 Water Source Type")
         source_type = st.selectbox("Choose type of source:", ["Faucet", "River/Stream", "Pipe Leak", "Fountain", "Rainwater Pool", "Other"])
