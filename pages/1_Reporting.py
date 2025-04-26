@@ -26,8 +26,8 @@ def load_data():
 
     # Convert zipcodes to string early to prevent formatting issues
     if "zipcode" in data.columns:
-        data["zipcode"] = data["zipcode"].astype(str).str.strip()
-
+        data["zipcode"] = data["zipcode"].astype(int).astype(str)  # Fix for zipcodes
+    
     return data
 
 
@@ -144,21 +144,19 @@ with table_tab:
     else:
         st.info("No reports to display.")
 
-# TRENDS TAB
+# COMBINED TRENDS + AI ANALYSIS TAB
 with trends_tab:
-    st.header("📈 Community Trends by Zip Code")
+    st.header("📈 Community Trends and AI Analysis by Zip Code")
     data = load_data()
     if not data.empty:
-        # Convert timestamp to datetime and extract weekly periods
+        # Prepare data
         data['timestamp'] = pd.to_datetime(data['timestamp'])
         data['week'] = data['timestamp'].dt.to_period("W").astype(str)
-
-        # Group data by ZIP code and week
         trend_data = data.groupby(['zipcode', 'week']).size().reset_index(name='report_count')
         zipcodes = trend_data['zipcode'].unique()
 
-        # Dropdown to select a ZIP code
-        selected_zip = st.selectbox("Select a ZIP Code to View Trends", zipcodes)
+        # Dropdown to select ZIP code
+        selected_zip = st.selectbox("Select a ZIP Code", zipcodes)
         selected_data = trend_data[trend_data['zipcode'] == selected_zip]
 
         if not selected_data.empty:
@@ -167,13 +165,12 @@ with trends_tab:
             fig, ax = plt.subplots(figsize=(12, 6))
             ax.plot(selected_data['week'], selected_data['report_count'], marker='o', color='b', linestyle='-', linewidth=2)
 
-            # Show every Nth week (e.g., every 4th week)
+            # Show every Nth week
             nth_week = 4
             week_labels = selected_data['week'][::nth_week]
             ax.set_xticks(selected_data['week'][::nth_week])
             ax.set_xticklabels(week_labels, rotation=45, ha='right', fontsize=10)
 
-            # Add labels and title for clarity
             ax.set_xlabel("Week", fontsize=12)
             ax.set_ylabel("Number of Reports", fontsize=12)
             ax.set_title(f"Water Source Reports Over Time - {selected_zip}", fontsize=14)
@@ -183,30 +180,14 @@ with trends_tab:
             st.markdown("---")
             st.subheader("Top ZIP Codes by Total Reports")
 
-            # Aggregate reports by ZIP code and show the top 5
+            # Top 5 ZIPs
             top_zips = trend_data.groupby('zipcode')['report_count'].sum().sort_values(ascending=False).head(5)
             st.bar_chart(top_zips)
-        else:
-            st.info("No data available for the selected ZIP code.")
-    else:
-        st.info("No data available yet. Submit some reports to see trends!")
 
-# AI ANALYSIS TAB
-with ai_analysis_tab:
-    st.header("🤖 AI Analysis of Water Reports by ZIP Code")
-    data = load_data()
-    if not data.empty:
-        data['timestamp'] = pd.to_datetime(data['timestamp'])
-        data['week'] = data['timestamp'].dt.to_period("W").astype(str)
+            st.markdown("---")
+            st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
 
-        trend_data = data.groupby(['zipcode', 'week']).size().reset_index(name='report_count')
-        zipcodes = trend_data['zipcode'].unique()
-
-        selected_zip = st.selectbox("Select a ZIP Code to Analyze", ["All"] + sorted(zipcodes))
-        if selected_zip != "All":
-            trend_data = trend_data[trend_data['zipcode'] == selected_zip]
-
-        if not trend_data.empty:
+            # Button to trigger AI Analysis
             aisubmit = st.button("🔍 Analyze This ZIP Code")
             if aisubmit:
                 try:
@@ -214,8 +195,8 @@ with ai_analysis_tab:
                     import openai
                     client = OpenAI()
 
-                    st.subheader(f"🧠 AI Analysis for ZIP Code {selected_zip}")
-                    weekly_summary = trend_data.tail(12).to_dict(orient='records')
+                    # Use the latest 12 records for analysis
+                    weekly_summary = selected_data.tail(12).to_dict(orient='records')
 
                     system_prompt = f"""
                     You are an expert assistant reviewing a collection of user-submitted reports about unsanitary water issues.
@@ -244,9 +225,11 @@ with ai_analysis_tab:
                         max_tokens=300,
                         temperature=0.5,
                     )
+
                     st.markdown(response.choices[0].message.content)
                 except Exception as e:
                     st.error(f"Error during analysis: {e}")
+
         else:
             st.info("No data available for the selected ZIP code.")
     else:
