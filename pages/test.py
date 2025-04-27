@@ -105,7 +105,8 @@ if submit_button:
                 "location_name": location_name,
                 "address": address,
                 "hours": hours,
-                "comments": []
+                "upvotes": 0,
+                "downvotes": 0
             }
 
             # Load existing data and append the new alert
@@ -169,5 +170,3 @@ st.download_button(
     file_name="alerts.txt",
     mime="text/plain"
 )
-
-
