@@ -91,8 +91,8 @@ if not st.session_state.consent_given:
     show_consent_form()
 else:
     # Sidebar and Main Content appear after consent
-    st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Go to", ["Home", "Alerts"])
+    # st.sidebar.title("Navigation")
+    # page = st.sidebar.radio("Go to", ["Home", "Alerts"])
 
     st.title("💧 WaterWatch Community Support System")
     st.markdown("""
