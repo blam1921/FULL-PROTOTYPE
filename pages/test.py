@@ -24,7 +24,7 @@ else:
     client = None
 
 # Initialize GSheets connection
-gsheets_conn = GSheetsConnection(sheet_name='alerts', use_cache=True)
+gsheets_conn = GSheetsConnection(sheet_name='alerts', connection_name='my_gsheet_connection', use_cache=True)
 
 # Pull existing alerts from the Google Sheet
 existing_alerts = gsheets_conn.read()
