@@ -9,7 +9,7 @@ if "consent_given" not in st.session_state or not st.session_state.consent_given
 
 # Set API keys from environment variables
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-OPENCAGE_API_KEY = os.getenv('06151f0c7be4481c99da5b8d1d8b2276'
+OPENCAGE_API_KEY = os.getenv('GoogleAPIKEY'
 )
 
 # Initialize OpenAI client if key is available
