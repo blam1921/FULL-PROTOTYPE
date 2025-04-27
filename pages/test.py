@@ -37,12 +37,6 @@ def load_data():
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
     data = data.dropna(how="all")  # Ensure no empty rows are included
 
-    # Ensure upvotes and downvotes columns exist
-    if 'upvotes' not in data.columns:
-        data['upvotes'] = 0
-    if 'downvotes' not in data.columns:
-        data['downvotes'] = 0
-
     # Remove expired alerts
     now = datetime.now()
     if not data.empty:
@@ -118,8 +112,6 @@ if submit_button:
                 "location_name": location_name,
                 "address": address,
                 "hours": hours,
-                "upvotes": 0,
-                "downvotes": 0
             }
 
             updated_alerts = pd.concat([alerts, pd.DataFrame([alert])], ignore_index=True)
