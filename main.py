@@ -100,5 +100,5 @@ else:
 
     Use the sidebar to navigate to features.
     """)
-
-st.logo(LOGO_URL, icon_image=LOGO_URL)
+    
+st.logo(LOGO_URL, *, size="medium", link=None, icon_image=None)
