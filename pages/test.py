@@ -154,7 +154,7 @@ if filtered_alerts:
         with col2:
             downvote_button = st.button(f"👎 Downvote ({alert.get('downvotes', 0)})", key=f"downvote_{idx}")
 
-        if (upvote or downvote) and not st.session_state[f"voted_{alert_id}"]:
+        if (upvote_button or downvote_button) and not st.session_state[f"voted_{alert_id}"]:
             # No need to reload alerts again — use existing list
             alerts_df = load_data()  # Refresh to get full dataframe from Sheet
         
@@ -166,11 +166,11 @@ if filtered_alerts:
         
             if len(match) > 0:
                 idx_match = match[0]
-                if upvote:
-                    alerts_df.at[idx_match, 'upvotes'] += 1
+                if upvote_button:
+                    alerts.at[idx_match, 'upvotes'] += 1
                     st.success("You upvoted this alert! ✅")
-                if downvote:
-                    alerts_df.at[idx_match, 'downvotes'] += 1
+                if downvote_button:
+                    alerts.at[idx_match, 'downvotes'] += 1
                     st.success("You downvoted this alert! 👎")
         
                 # Save back
