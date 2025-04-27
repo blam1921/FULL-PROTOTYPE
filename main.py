@@ -101,5 +101,8 @@ else:
     Use the sidebar to navigate to features.
     """)
 
-# Display the large logo
-st.image(LOGO_URL, width=200)  # Adjust width as needed
+st.logo(
+    LOGO_URL,
+    link="https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true",
+    icon_image=LOGO_URL,
+)
