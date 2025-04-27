@@ -1,34 +1,62 @@
 import streamlit as st
-from datetime import datetime
 
+# Set page config
 st.set_page_config(page_title="WaterWatch Community", layout="wide")
 
-# 🔹 Global Theme Styling
+# 🔹 Global CSS Styling (Dark/Light Mode)
 st.markdown("""
 <style>
     html, body, [class*="css"] {
         font-family: 'Segoe UI', sans-serif;
-        background-color: #f8fcfd;
     }
+
+    @media (prefers-color-scheme: light) {
+        html, body, [class*="css"] {
+            background-color: #f8fcfd;
+            color: #000000;
+        }
+        .consent-box {
+            background-color: #e0f7fa;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stButton > button {
+            background-color: #00acc1;
+            color: white;
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        html, body, [class*="css"] {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .consent-box {
+            background-color: #263238;
+            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+        }
+        .stButton > button {
+            background-color: #26c6da;
+            color: #000000;
+        }
+    }
+
     .stButton > button {
-        background-color: #00acc1;
-        color: white;
         border-radius: 0.5rem;
         padding: 0.5rem 1.2rem;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 🧠 Session Variables
+# 🧠 Initialize session state
 if "consent_given" not in st.session_state:
     st.session_state.consent_given = False
 if "analytics_consent" not in st.session_state:
     st.session_state.analytics_consent = None
 
-# 🔐 Consent Gate UI
-if not st.session_state.consent_given:
+# 📢 Consent Form
+def show_consent_form():
     st.markdown("""
-    <div style='background-color: #e0f7fa; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 700px; margin: auto;'>
+    <div class="consent-box" style='padding: 2rem; border-radius: 1rem; max-width: 700px; margin: auto;'>
         <h2 style='text-align: center;'>🔒 Consent Required</h2>
         <p style='text-align: center;'>Before using this app, please review and agree to the following:</p>
         <ul>
@@ -36,42 +64,38 @@ if not st.session_state.consent_given:
             <li>No personal data is stored.</li>
             <li>Your contributions help support the community.</li>
         </ul>
-        <p><b>Would you like to allow anonymous usage data to be collected to improve WaterWatch?</b></p>
+        <p><b>Consent is required to use WaterWatch Community Support System.</b></p>
     </div>
     """, unsafe_allow_html=True)
 
     consent_choice = st.radio(
-        label="Consent for Data Usage",
+        label="Do you agree to the data collection policy?",
         options=["I consent", "I do not consent"],
         index=1
     )
 
     if st.button("Continue"):
-        st.session_state.consent_given = True
-        st.session_state.analytics_consent = (consent_choice == "I consent")
-        st.success("✅ Response recorded. Please refresh the page to continue.")
-        st.stop()
-    else:
-        st.stop()
+        if consent_choice == "I consent":
+            st.session_state.consent_given = True
+            st.session_state.analytics_consent = True
+            st.success("✅ Thank you! Please refresh the page to continue.")
+            st.stop()
+        else:
+            st.error("❌ Consent is required to use this app. Please close the tab if you do not agree.")
+            st.stop()
 
-# ✅ Optional: Show message if consent already accepted
-st.markdown("✅ Consent previously accepted.")
+# 🚀 Main Program
+if not st.session_state.consent_given:
+    show_consent_form()
+else:
+    # Sidebar and Main Content appear after consent
+    st.sidebar.title("Navigation")
+    page = st.sidebar.radio("Go to", ["Home", "Alerts"])
 
-# 📊 Optional Logger
-def log_event(event_name, detail=""):
-    if st.session_state.get("analytics_consent"):
-        with open("usage_log.txt", "a") as f:
-            f.write(f"{datetime.now()}, {event_name}, {detail}\n")
+    st.title("💧 WaterWatch Community Support System")
+    st.markdown("""
+    Welcome to **WaterWatch**, a community support hub for accessing and logging water resources, meals, showers, and clinics.
 
-# 📍 Main App Content
-st.title("💧 WaterWatch Community Support System")
-st.markdown("""
-Welcome to **WaterWatch**, a community support hub for accessing and logging water resources, meals, showers, and clinics.
+    Use the sidebar to navigate to features.
+    """)
 
-Use the sidebar to navigate:
-- Create and view alerts
-- Report water issues
-- View clean water locations and tips
-""")
-
-log_event("Homepage Visited")
