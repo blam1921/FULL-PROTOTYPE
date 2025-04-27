@@ -119,7 +119,7 @@ if submit_button:
             updated_alerts = pd.concat([alerts, pd.DataFrame([alert])], ignore_index=True)
             conn.update(worksheet=SHEET_NAME, data=updated_alerts)
 
-            st.success("✅ Alert generated and submitted successfully!")
+            st.success("✅ Message generated and submitted successfully!")
             st.info(message)
 
             # If we have coordinates, show the map below the alert
@@ -129,7 +129,7 @@ if submit_button:
         except Exception as e:
             st.error(f"Error generating alert: {e}")
     else:
-        st.error("❌ OpenAI API key not set. Cannot generate alerts.")
+        st.error("❌ OpenAI API key not set. Cannot generate message.")
 
 st.divider()
 
@@ -158,7 +158,7 @@ if filtered_alerts:
             if time_left.total_seconds() > 0:
                 st.markdown(f"🕒 **Time Remaining:** {str(time_left).split('.')[0]}")
             else:
-                st.markdown("❌ This alert has expired and will be removed shortly.")
+                st.markdown("❌ This message has expired and will be removed shortly.")
 
             # Show coordinates if available
             if alert.get('coordinates'):
