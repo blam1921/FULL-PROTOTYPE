@@ -103,7 +103,7 @@ else:
     
 st.logo(LOGO_URL, size="large", link=None, icon_image=None)
 
-# Center the image using custom HTML and CSS
+# Insert and Center a large image for main
 st.markdown(
     f'<div style="text-align: center;"><img src="{LOGO_URL}" width="500"></div>',
     unsafe_allow_html=True
