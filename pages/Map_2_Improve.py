@@ -5,6 +5,7 @@ if "consent_given" not in st.session_state or not st.session_state.consent_given
    st.stop()
    
 import openai
+import os
 import pandas as pd
 import pydeck as pdk
 import requests
