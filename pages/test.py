@@ -25,17 +25,14 @@ else:
 
 # Google Sheets Setup
 SHEET_NAME = "alerts"
-conn = GSheetsConnection(connection_name="gsheets")
+conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Coordinates initialization
-coords = {"lat": "", "lng": ""}  # Initialize coords
+def load_data():
+    data = conn.read(worksheet=SHEET_NAME, ttl=5)
+    data = data.dropna(how="all")
+    
+    return data
 
-# Pull existing alerts from the Google Sheet
-existing_alerts = conn.get_all_rows(sheet_name=SHEET_NAME)
-alerts = existing_alerts if existing_alerts is not None else []
-
-# Sheet columns
-columns = ["ID", "Type", "Message", "Comments", "Location Name", "Address", "Hours Available", "Coordinates (Lat)", "Coordinates (Lng)"]
 
 st.title("💧 LifeDrop - Community Alert System")
 st.caption("Manage and send alerts for water, meals, showers, and clinics.")
@@ -58,7 +55,10 @@ if geocode_button and address:
             geo_response = requests.get(geo_url).json()
             coords = geo_response['results'][0]['geometry']
             st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
+
+            # ➡️ Add the map WITHOUT pandas
             st.map([{"lat": coords['lat'], "lon": coords['lng']}])
+            # ⬅️ End of added map
         except Exception as e:
             st.error(f"Could not find coordinates. Check the address or try again.")
     else:
@@ -77,8 +77,10 @@ if submit_button:
         try:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": "You write short, friendly community alerts."},
-                          {"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": "You write short, friendly community alerts."},
+                    {"role": "user", "content": prompt}
+                ],
                 temperature=0.7,
                 max_tokens=100
             )
@@ -87,28 +89,14 @@ if submit_button:
             alert_entry = {
                 "type": resource_type,
                 "message": message,
-                "comments": [],
-                "location_name": location_name,
-                "address": address,
-                "hours": hours
+                "comments": []
             }
             alerts.append(alert_entry)
-
-            # Write the alert entry to Google Sheets
-            conn.append_row(sheet_name=SHEET_NAME, row_data=[
-                len(alerts),  # ID (auto-incremented by length of alerts list)
-                resource_type,
-                message,
-                "",  # Empty comment field initially
-                location_name,
-                address,
-                hours,
-                coords['lat'] if 'coords' in locals() else "",
-                coords['lng'] if 'coords' in locals() else ""
-            ])
-
-            st.success("✅ Alert generated and saved to Google Sheets!")
+            st.success("✅ Alert generated successfully!")
             st.info(message)
+
+            # Save to Google Sheets
+            gsheets_conn.update(data=alerts)
 
         except Exception as e:
             st.error(f"Error generating alert: {e}")
@@ -121,36 +109,32 @@ st.divider()
 st.header("📋 Generated Alerts")
 filter_type = st.selectbox("Filter by Type", ["All", "Water Station", "Free Meal", "Shower", "Health Clinic"])
 
-# Read alerts from Google Sheets
-alerts_from_sheet = conn.get_all_rows(sheet_name=SHEET_NAME)
-
 filtered_alerts = [
-    alert for alert in alerts_from_sheet
-    if filter_type == "All" or alert["Type"] == filter_type
+    alert for alert in alerts
+    if filter_type == "All" or alert["type"] == filter_type
 ]
 
 if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
-        st.markdown(f"**{idx}.** {alert['Message']}")
+        st.markdown(f"**{idx}.** {alert['message']}")
 
         # Comments Section
         with st.expander("💬 Add/View Comments"):
-            comments = alert['Comments']
-            for comment in comments:
+            for comment in alert['comments']:
                 st.write(f"🗨️ {comment}")
             new_comment = st.text_input(f"Add a comment for alert #{idx}", key=f"comment_{idx}")
             if st.button(f"Submit Comment #{idx}", key=f"submit_comment_{idx}"):
-                # Add comment to Google Sheets
-                updated_comments = comments + [new_comment]
-                conn.update_row(sheet_name=SHEET_NAME, row_id=idx, updated_data={"Comments": updated_comments})
+                alert['comments'].append(new_comment)
                 st.success("Comment added!")
+                # Save updated alerts with new comment to Google Sheets
+                gsheets_conn.update(data=alerts)
 else:
     st.info("No alerts to display.")
 
 # Download option
 st.download_button(
     label="📥 Download Alerts as Text File",
-    data="\n\n".join([a["Message"] for a in alerts_from_sheet]),
+    data="\n\n".join([a["message"] for a in alerts]),
     file_name="alerts.txt",
     mime="text/plain"
 )
