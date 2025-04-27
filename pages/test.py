@@ -1,8 +1,8 @@
 import streamlit as st
 import os
 import requests
-import pandas as pd
 from datetime import datetime
+import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
 # Check user consent
@@ -30,7 +30,7 @@ SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 def load_data():
-    # Load the existing alerts from Google Sheets
+    # Load the existing data from Google Sheets
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
     data = data.dropna(how="all")
     return data
@@ -52,36 +52,20 @@ with st.form(key='resource_form'):
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
     submit_button = st.form_submit_button(label='Generate Alert')
 
-if geocode_button and address:
-    if OPENCAGE_API_KEY:
-        try:
-            geo_url = f"https://api.opencagedata.com/geocode/v1/json?q={address}&key={OPENCAGE_API_KEY}"
-            geo_response = requests.get(geo_url).json()
-            coords = geo_response['results'][0]['geometry']
-            st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
-
-            # ➡️ Add the map WITHOUT pandas
-            st.map([{"lat": coords['lat'], "lon": coords['lng']}])
-            # ⬅️ End of added map
-        except Exception as e:
-            st.error(f"Could not find coordinates. Check the address or try again.")
-    else:
-        st.error("❌ OpenCage API key not set. Cannot autofill coordinates.")
-
+# Validate the fields when submitting the form
 if submit_button:
-    # Validate required fields
     if not location_name or not address or not hours:
         st.error("❌ Please fill in all required fields.")
     else:
-        # Generate the alert message
-        if client:
-            prompt = f"""
-            You are helping homeless users find resources. 
-            Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
-            It is available {hours}. 
-            Keep it positive and encouraging.
-            """
+        # Prepare prompt for generating the alert message
+        prompt = f"""
+        You are helping homeless users find resources. 
+        Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
+        It is available {hours}. 
+        Keep it positive and encouraging.
+        """
 
+        if client:
             try:
                 response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
@@ -92,25 +76,23 @@ if submit_button:
                 )
                 message = response.choices[0].message.content.strip()
 
-                # Build the alert entry
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+                # Build the alert dictionary
                 alert_entry = {
-                    "timestamp": timestamp,
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
                     "type": resource_type,
                     "message": message,
                     "location_name": location_name,
                     "address": address,
                     "hours": hours,
-                    "comments": ""
+                    "comments": []
                 }
 
                 # Append the new alert to the existing alerts
-                alerts = pd.concat([alerts, pd.DataFrame([alert_entry])], ignore_index=True)
+                alerts = alerts.append(alert_entry, ignore_index=True)
 
-                # Update the Google Sheets
+                # Update Google Sheets with the new data
                 conn.update(worksheet=SHEET_NAME, data=alerts)
 
-                # Success message
                 st.success("✅ Alert generated successfully!")
                 st.info(message)
 
@@ -136,12 +118,13 @@ if filtered_alerts:
 
         # Comments Section
         with st.expander("💬 Add/View Comments"):
-            st.write(f"🗨️ {alert['comments']}")
+            for comment in alert['comments']:
+                st.write(f"🗨️ {comment}")
             new_comment = st.text_input(f"Add a comment for alert #{idx}", key=f"comment_{idx}")
             if st.button(f"Submit Comment #{idx}", key=f"submit_comment_{idx}"):
-                # Add the comment to the alert and update the Google Sheets
-                alert['comments'] += f"\n🗨️ {new_comment}"
+                alert['comments'].append(new_comment)
                 st.success("Comment added!")
+                # Save updated alerts with new comment to Google Sheets
                 conn.update(worksheet=SHEET_NAME, data=alerts)
 else:
     st.info("No alerts to display.")
