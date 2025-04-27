@@ -154,28 +154,32 @@ if filtered_alerts:
         with col2:
             downvote_button = st.button(f"👎 Downvote ({alert.get('downvotes', 0)})", key=f"downvote_{idx}")
 
-        if (upvote_button or downvote_button) and not st.session_state[f"voted_{alert_id}"]:
-            # Find the index of the current alert inside the 'alerts' DataFrame
-            alert_index = alerts[
-                (alerts['timestamp'] == alert['timestamp']) & 
-                (alerts['location_name'] == alert['location_name'])
+        if (upvote or downvote) and not st.session_state[f"voted_{alert_id}"]:
+            # No need to reload alerts again — use existing list
+            alerts_df = load_data()  # Refresh to get full dataframe from Sheet
+        
+            # Find exact alert based on timestamp and location
+            match = alerts_df[
+                (alerts_df['timestamp'] == alert['timestamp']) &
+                (alerts_df['location_name'] == alert['location_name'])
             ].index
-
-            if len(alert_index) > 0:
-                if upvote_button:
-                    alerts.at[alert_index[0], 'upvotes'] = alerts.at[alert_index[0]].get('upvotes', 0) + 1
+        
+            if len(match) > 0:
+                idx_match = match[0]
+                if upvote:
+                    alerts_df.at[idx_match, 'upvotes'] += 1
                     st.success("You upvoted this alert! ✅")
-                if downvote_button:
-                    alerts.at[alert_index[0], 'downvotes'] = alerts.at[alert_index[0]].get('downvotes', 0) + 1
+                if downvote:
+                    alerts_df.at[idx_match, 'downvotes'] += 1
                     st.success("You downvoted this alert! 👎")
-                
-                # Save to Google Sheets
-                conn.update(worksheet=SHEET_NAME, data=alerts)
-
-                # Set voted flag
+        
+                # Save back
+                conn.update(worksheet=SHEET_NAME, data=alerts_df)
                 st.session_state[f"voted_{alert_id}"] = True
+        
             else:
-                st.error("Could not find the alert to update votes.")
+                st.error("⚠️ Could not find the alert to update. Maybe try refreshing the page?")
+
 
         elif (upvote_button or downvote_button) and st.session_state[f"voted_{alert_id}"]:
             st.warning("You already voted on this alert in this session.")
