@@ -142,24 +142,43 @@ if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
         st.markdown(f"**{idx}.** {alert['message']}")
 
-        # Upvote/Downvote System
+        # Initialize session state tracking for voting
+        alert_id = f"{alert['timestamp']}_{alert['location_name']}"  # Create a unique ID per alert
+        if f"voted_{alert_id}" not in st.session_state:
+            st.session_state[f"voted_{alert_id}"] = False
+
+        # Upvote/Downvote Buttons
         col1, col2 = st.columns(2)
         with col1:
-            upvote_button = st.button(f"👍 Upvote ({alert['upvotes']})", key=f"upvote_{idx}")
+            upvote_button = st.button(f"👍 Upvote ({alert.get('upvotes', 0)})", key=f"upvote_{idx}")
         with col2:
-            downvote_button = st.button(f"👎 Downvote ({alert['downvotes']})", key=f"downvote_{idx}")
+            downvote_button = st.button(f"👎 Downvote ({alert.get('downvotes', 0)})", key=f"downvote_{idx}")
 
-        if upvote_button:
-            alert['upvotes'] += 1
-            st.success("You upvoted this alert!")
-        if downvote_button:
-            alert['downvotes'] += 1
-            st.success("You downvoted this alert!")
+        if (upvote_button or downvote_button) and not st.session_state[f"voted_{alert_id}"]:
+            # Find the index of the current alert inside the 'alerts' DataFrame
+            alert_index = alerts[
+                (alerts['timestamp'] == alert['timestamp']) & 
+                (alerts['location_name'] == alert['location_name'])
+            ].index
 
-        # Save updated alerts with new upvote/downvote to Google Sheets
-        if upvote_button or downvote_button:
-            conn.update(worksheet=SHEET_NAME, data=alerts)
+            if len(alert_index) > 0:
+                if upvote_button:
+                    alerts.at[alert_index[0], 'upvotes'] = alerts.at[alert_index[0]].get('upvotes', 0) + 1
+                    st.success("You upvoted this alert! ✅")
+                if downvote_button:
+                    alerts.at[alert_index[0], 'downvotes'] = alerts.at[alert_index[0]].get('downvotes', 0) + 1
+                    st.success("You downvoted this alert! 👎")
+                
+                # Save to Google Sheets
+                conn.update(worksheet=SHEET_NAME, data=alerts)
 
+                # Set voted flag
+                st.session_state[f"voted_{alert_id}"] = True
+            else:
+                st.error("Could not find the alert to update votes.")
+
+        elif (upvote_button or downvote_button) and st.session_state[f"voted_{alert_id}"]:
+            st.warning("You already voted on this alert in this session.")
 else:
     st.info("No alerts to display.")
 
