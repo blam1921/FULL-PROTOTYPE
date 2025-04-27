@@ -52,8 +52,8 @@ def load_data():
 # Initialize the alerts data from Google Sheets
 alerts = load_data()
 
-st.title("💧 LifeDrop - Community Alert System")
-st.caption("Manage and send alerts for water, meals, showers, and clinics.")
+st.title("💧 Community Bulletin System")
+st.caption("Manage and send notifications for water, meals, showers, and clinics.")
 
 # Add New Resource
 st.header("➕ Add New Resource")
@@ -67,7 +67,7 @@ with st.form(key='resource_form'):
     timer_duration = st.selectbox("Select Timer Duration (Minutes)", [1, 5, 10, 15, 30, 60, 120], index=4)  # Default 60 minutes
 
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
-    submit_button = st.form_submit_button(label='Generate Alert')
+    submit_button = st.form_submit_button(label='Generate Message')
 
 # Automatically generate map when address is input
 if address and OPENCAGE_API_KEY:
