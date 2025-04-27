@@ -27,6 +27,9 @@ else:
 SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
+# Initialize alerts list
+alerts = []
+
 def load_data():
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
     data = data.dropna(how="all")
