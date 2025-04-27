@@ -33,6 +33,14 @@ def load_data():
     # Load existing data from Google Sheets
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
     data = data.dropna(how="all")  # Ensure no empty rows are included
+
+    # Make sure 'upvotes' and 'downvotes' are initialized to 0 if not present
+    for idx, row in data.iterrows():
+        if 'upvotes' not in row:
+            row['upvotes'] = 0
+        if 'downvotes' not in row:
+            row['downvotes'] = 0
+
     return data
 
 # Initialize the alerts data from Google Sheets
@@ -133,16 +141,24 @@ if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
         st.markdown(f"**{idx}.** {alert['message']}")
 
-        # Comments Section
-        with st.expander("💬 Add/View Comments"):
-            for comment in alert['comments']:
-                st.write(f"🗨️ {comment}")
-            new_comment = st.text_input(f"Add a comment for alert #{idx}", key=f"comment_{idx}")
-            if st.button(f"Submit Comment #{idx}", key=f"submit_comment_{idx}"):
-                alert['comments'].append(new_comment)
-                st.success("Comment added!")
-                # Save updated alerts with new comment to Google Sheets
-                conn.update(worksheet=SHEET_NAME, data=alerts)
+        # Upvote/Downvote System
+        col1, col2 = st.columns(2)
+        with col1:
+            upvote_button = st.button(f"👍 Upvote ({alert['upvotes']})", key=f"upvote_{idx}")
+        with col2:
+            downvote_button = st.button(f"👎 Downvote ({alert['downvotes']})", key=f"downvote_{idx}")
+
+        if upvote_button:
+            alert['upvotes'] += 1
+            st.success("You upvoted this alert!")
+        if downvote_button:
+            alert['downvotes'] += 1
+            st.success("You downvoted this alert!")
+
+        # Save updated alerts with new upvote/downvote to Google Sheets
+        if upvote_button or downvote_button:
+            conn.update(worksheet=SHEET_NAME, data=alerts)
+
 else:
     st.info("No alerts to display.")
 
