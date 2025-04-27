@@ -4,20 +4,10 @@ from datetime import datetime
 import os
 from streamlit_gsheets import GSheetsConnection
 import matplotlib.pyplot as plt
+import re
+
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-# App Setup
-st.set_page_config(page_title="Report a Water Source", layout="wide")
-st.title("🚰 Report a Water Source")
-
-st.markdown("""
-Report information about water sources in your area.
-""")
-
-# Google Sheets Setup
-SHEET_NAME = "Water-Report"
-conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Fetch existing reports data
 def load_data():
@@ -30,6 +20,25 @@ def load_data():
 
     return data
 
+def validate_zipcode(zipcode):
+    # Regex pattern for 5-digit or 9-digit (5 + hyphen + 4 digits) ZIP codes
+    pattern = r"^\d{5}(-\d{4})?$"
+    if re.match(pattern, zipcode):
+        return True
+    else:
+        return False
+
+# App Setup
+st.set_page_config(page_title="Report a Water Source", layout="wide")
+st.title("🚰 Report a Water Source")
+
+st.markdown("""
+Report information about water sources in your area.
+""")
+
+# Google Sheets Setup
+SHEET_NAME = "Water-Report"
+conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Tabs
 report_tab, gallery_tab, table_tab, trends_tab = st.tabs(
@@ -56,23 +65,42 @@ with report_tab:
         used = st.radio("Did you use this water?", ["Yes", "No"])
         symptoms = st.text_input("Any symptoms after use? (optional)")
 
+
         submitted = st.form_submit_button("Submit Report")
         if submitted:
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-            report = {
-                "timestamp": timestamp,
-                "address": address,
-                "zipcode": zipcode,
-                "description": description,
-                "concerns": ", ".join(concerns),
-                "type": source_type,
-                "used": used,
-                "symptoms": symptoms,
-            }
-            existing_data = load_data()
-            updated_data = pd.concat([existing_data, pd.DataFrame([report])], ignore_index=True)
-            conn.update(worksheet=SHEET_NAME, data=updated_data)
-            st.success("✅ Report submitted successfully!")
+            # Check if required fields are filled out
+            if not address or not zipcode or not description or not concerns or not source_type or not used:
+                st.error("❌ Please fill in all required fields.")
+            elif not validate_zipcode(zipcode):  # Validate the zipcode format
+                st.error("❌ Please enter a valid ZIP code (e.g., 12345 or 12345-6789).")
+            else:
+                # Ensure optional fields are handled properly (e.g., symptoms can be empty)
+                symptoms = symptoms if symptoms else ""  # Default to "N/A" if empty
+
+                # Build the report dictionary
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+                report = {
+                    "timestamp": timestamp,
+                    "address": address,
+                    "zipcode": zipcode,
+                    "description": description,
+                    "concerns": ", ".join(concerns),
+                    "type": source_type,
+                    "used": used,
+                    "symptoms": symptoms,
+                }
+
+                # Load existing data and append the new report
+                existing_data = load_data()
+
+                # Make sure all columns match in terms of data types to avoid issues with pd.concat
+                updated_data = pd.concat([existing_data, pd.DataFrame([report])], ignore_index=True)
+
+                # Update the Google Sheets or database
+                conn.update(worksheet=SHEET_NAME, data=updated_data)
+
+                # Success message
+                st.success("✅ Report submitted successfully!")
 
 # GALLERY TAB
 with gallery_tab:
