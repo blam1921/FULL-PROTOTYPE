@@ -9,6 +9,12 @@ import re
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
+
+# 🔒 Check global consent at page load
+if "consent_given" not in st.session_state or not st.session_state.consent_given:
+    st.error("❌ Consent is required to use this app. Please return to the homepage.")
+    st.stop()
+
 # Fetch existing reports data
 def load_data():
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
