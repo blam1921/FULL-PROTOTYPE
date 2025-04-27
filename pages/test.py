@@ -27,15 +27,14 @@ else:
 SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Initialize alerts list
-alerts = []
-
 def load_data():
+    # Load the existing alerts from Google Sheets
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
     data = data.dropna(how="all")
-    
     return data
 
+# Initialize the alerts data from Google Sheets
+alerts = load_data()
 
 st.title("💧 LifeDrop - Community Alert System")
 st.caption("Manage and send alerts for water, meals, showers, and clinics.")
@@ -69,7 +68,7 @@ if geocode_button and address:
 
 if submit_button:
     if client:
-        # Prepare prompt
+        # Prepare prompt for generating the alert message
         prompt = f"""
         You are helping homeless users find resources. 
         Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
@@ -80,10 +79,8 @@ if submit_button:
         try:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You write short, friendly community alerts."},
-                    {"role": "user", "content": prompt}
-                ],
+                messages=[{"role": "system", "content": "You write short, friendly community alerts."},
+                          {"role": "user", "content": prompt}],
                 temperature=0.7,
                 max_tokens=100
             )
@@ -94,7 +91,7 @@ if submit_button:
                 "message": message,
                 "comments": []
             }
-            alerts.append(alert_entry)
+            alerts.append(alert_entry)  # Add the new alert to the existing list
             st.success("✅ Alert generated successfully!")
             st.info(message)
 
