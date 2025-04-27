@@ -1,6 +1,8 @@
 import streamlit as st
 
 LOGO_URL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
+sidebar_logo = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
+icon_image = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
 
 # Set page config
 st.set_page_config(page_title="WaterWatch Community", layout="wide")
@@ -101,8 +103,4 @@ else:
     Use the sidebar to navigate to features.
     """)
 
-st.logo(
-    LOGO_URL,
-    "large",
-    icon_image=LOGO_URL,
-)
+st.logo(sidebar_logo, icon_image=main_body_logo)
