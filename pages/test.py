@@ -28,7 +28,6 @@ SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Pull existing alerts from the Google Sheet
-existing_alerts = gsheets_conn.read()
 existing_alerts = conn.read(worksheet=SHEET_NAME)
 alerts = existing_alerts if existing_alerts is not None else []
 
