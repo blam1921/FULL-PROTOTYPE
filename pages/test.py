@@ -32,7 +32,7 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 def load_data():
     # Load existing data from Google Sheets
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
-    data = data.dropna(how="all")
+    data = data.dropna(how="all")  # Ensure no empty rows are included
     return data
 
 # Initialize the alerts data from Google Sheets
@@ -120,8 +120,12 @@ st.divider()
 st.header("📋 Generated Alerts")
 filter_type = st.selectbox("Filter by Type", ["All", "Water Station", "Free Meal", "Shower", "Health Clinic"])
 
+# Convert DataFrame to list of dictionaries for easier filtering
+alerts_dicts = alerts.to_dict(orient="records")
+
+# Filter alerts based on type
 filtered_alerts = [
-    alert for alert in alerts
+    alert for alert in alerts_dicts
     if filter_type == "All" or alert["type"] == filter_type
 ]
 
@@ -145,8 +149,9 @@ else:
 # Download option
 st.download_button(
     label="📥 Download Alerts as Text File",
-    data="\n\n".join([a["message"] for a in alerts]),
+    data="\n\n".join([a["message"] for a in alerts_dicts]),
     file_name="alerts.txt",
     mime="text/plain"
 )
+
 
