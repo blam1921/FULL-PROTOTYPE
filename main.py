@@ -103,5 +103,9 @@ else:
     
 st.logo(LOGO_URL, size="large", link=None, icon_image=None)
 
-# Display the logo with a custom size using st.image()
-st.image(LOGO_URL, width=500)  # Adjust the width to your desired size
+# Center the image using custom HTML and CSS
+st.markdown(
+    f'<div style="text-align: center;"><img src="{LOGO_URL}" width="500"></div>',
+    unsafe_allow_html=True
+)
+
