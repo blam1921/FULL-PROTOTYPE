@@ -141,39 +141,6 @@ filtered_alerts = [
 if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
         st.markdown(f"**{idx}.** {alert['message']}")
-
-        alert_id = f"{alert['timestamp']}_{alert['location_name']}"
-        if f"voted_{alert_id}" not in st.session_state:
-            st.session_state[f"voted_{alert_id}"] = False
-
-        col1, col2 = st.columns(2)
-        with col1:
-            upvote_button = st.button(f"👍 Upvote ({alert.get('upvotes', 0)})", key=f"upvote_{idx}")
-        with col2:
-            downvote_button = st.button(f"👎 Downvote ({alert.get('downvotes', 0)})", key=f"downvote_{idx}")
-
-        if (upvote_button or downvote_button) and not st.session_state[f"voted_{alert_id}"]:
-            alerts_df = load_data()
-            match = alerts_df[
-                (alerts_df['timestamp'] == alert['timestamp']) &
-                (alerts_df['location_name'] == alert['location_name'])
-            ].index
-
-            if len(match) > 0:
-                idx_match = match[0]
-                if upvote_button:
-                    alerts.at[idx_match, 'upvotes'] += 1
-                    st.success("You upvoted this alert! ✅")
-                if downvote_button:
-                    alerts.at[idx_match, 'downvotes'] += 1
-                    st.success("You downvoted this alert! 👎")
-
-                conn.update(worksheet=SHEET_NAME, data=alerts_df)
-                st.session_state[f"voted_{alert_id}"] = True
-            else:
-                st.error("⚠️ Could not find the alert to update. Maybe try refreshing the page?")
-        elif (upvote_button or downvote_button) and st.session_state[f"voted_{alert_id}"]:
-            st.warning("You already voted on this alert in this session.")
 else:
     st.info("No alerts to display.")
 
