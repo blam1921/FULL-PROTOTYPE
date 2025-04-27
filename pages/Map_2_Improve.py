@@ -11,7 +11,7 @@ import requests
 import math
 
 # ✅ Set OpenAI API Key
-openai.api_key = ""  # <-- Your real OpenAI key here
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # ✅ 1. Always set page config first!
 st.set_page_config(
