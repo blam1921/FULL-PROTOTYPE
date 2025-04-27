@@ -165,7 +165,9 @@ if filtered_alerts:
                         coords = None
 
                 if coords and isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
-                    st.markdown(f"**Coordinates:** {coords['lat']}, {coords['lng']}")
+                    google_maps_link = f"https://www.google.com/maps?q={coords['lat']},{coords['lng']}"
+                    st.markdown(f"**Coordinates:** [{coords['lat']}, {coords['lng']}]({google_maps_link})")
+
 
             expiration_time = datetime.strptime(alert['expiration_time'], "%Y-%m-%d %H:%M")
             time_left = expiration_time - datetime.now()
