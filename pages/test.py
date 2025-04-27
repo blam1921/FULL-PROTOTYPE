@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 import requests
+from datetime import datetime
+import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
 # Check user consent
@@ -27,15 +29,14 @@ else:
 SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Initialize alerts list
-alerts = []
-
 def load_data():
+    # Load the existing alerts from Google Sheets
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
     data = data.dropna(how="all")
-    
     return data
 
+# Initialize the alerts data from Google Sheets
+alerts = load_data()
 
 st.title("💧 LifeDrop - Community Alert System")
 st.caption("Manage and send alerts for water, meals, showers, and clinics.")
@@ -68,8 +69,12 @@ if geocode_button and address:
         st.error("❌ OpenCage API key not set. Cannot autofill coordinates.")
 
 if submit_button:
-    if client:
-        # Prepare prompt
+    # Validation
+    if not location_name or not address or not hours:
+        st.error("❌ Please fill in all required fields: Location Name, Address, and Hours.")
+    else:
+        # Prepare the alert details
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
         prompt = f"""
         You are helping homeless users find resources. 
         Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
@@ -78,33 +83,45 @@ if submit_button:
         """
 
         try:
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You write short, friendly community alerts."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=100
-            )
-            message = response.choices[0].message.content.strip()
+            # Generate alert message using OpenAI
+            if client:
+                response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "system", "content": "You write short, friendly community alerts."},
+                              {"role": "user", "content": prompt}],
+                    temperature=0.7,
+                    max_tokens=100
+                )
+                message = response.choices[0].message.content.strip()
+            else:
+                st.error("❌ OpenAI API key not set. Cannot generate alerts.")
+                return
 
             alert_entry = {
+                "timestamp": timestamp,
                 "type": resource_type,
                 "message": message,
-                "comments": []
+                "location_name": location_name,
+                "address": address,
+                "hours": hours,
+                "comments": []  # Initialize an empty list for comments
             }
-            alerts.append(alert_entry)
-            st.success("✅ Alert generated successfully!")
-            st.info(message)
 
-            # Save to Google Sheets
-            conn.update(data=alerts)
+            # Load existing data and append the new alert
+            existing_data = load_data()
+
+            # Append the new alert entry to the existing data
+            updated_data = pd.concat([existing_data, pd.DataFrame([alert_entry])], ignore_index=True)
+
+            # Update Google Sheets with the new alert data
+            conn.update(worksheet=SHEET_NAME, data=updated_data)
+
+            # Success message
+            st.success("✅ Alert generated and submitted successfully!")
+            st.info(message)  # Display the generated message
 
         except Exception as e:
             st.error(f"Error generating alert: {e}")
-    else:
-        st.error("❌ OpenAI API key not set. Cannot generate alerts.")
 
 st.divider()
 
@@ -130,7 +147,8 @@ if filtered_alerts:
                 alert['comments'].append(new_comment)
                 st.success("Comment added!")
                 # Save updated alerts with new comment to Google Sheets
-                conn.update(data=alerts)
+                updated_data = pd.concat([alerts, pd.DataFrame([alert])], ignore_index=True)
+                conn.update(worksheet=SHEET_NAME, data=updated_data)
 else:
     st.info("No alerts to display.")
 
