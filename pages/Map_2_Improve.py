@@ -11,8 +11,10 @@ import pydeck as pdk
 import requests
 import math
 
-# OpenAI Key
+# Correct way to fetch key
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+openai.api_key = OPENAI_API_KEY
+
 
 # ✅ 1. Set page config first
 st.set_page_config(
