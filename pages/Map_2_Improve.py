@@ -3,18 +3,15 @@ import streamlit as st
 if "consent_given" not in st.session_state or not st.session_state.consent_given:
    st.error("❌ Consent is required to use this app. Please return to the homepage.")
    st.stop()
-
+   
 import openai
 import pandas as pd
 import pydeck as pdk
 import requests
 import math
-import os
 
-# ✅ Set OpenAI API Key
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
-# ✅ 1. Always set page config first!
+# ✅ 1. Set page config first
 st.set_page_config(
     page_title="💧 Water Access Support",
     layout="wide",
@@ -51,15 +48,12 @@ st.markdown(
     .stSelectbox, .stTextInput {
         font-size: 18px;
     }
-    .css-1d391kg, .css-1v0mbdj {
-        font-size: 18px;
-    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# ✅ Image
+# ✅ Water image URL (only for map page if needed)
 water_image = "https://images.unsplash.com/photo-1589927986089-35812388d1b4"
 
 # Multilingual Setup
@@ -71,8 +65,8 @@ msgs = {
     "error_fetch": {"English": "⚠️ Could not find any locations.", "Español": "⚠️ No se pudieron encontrar ubicaciones."},
     "no_results": {"English": "No water sources found nearby.", "Español": "No se encontraron fuentes cercanas."},
     "help_options": {
-        "English": ["💡 Water Tips", "🧠 Generate Tip", "🏢 Resources"],
-        "Español": ["💡 Consejos de Agua", "🧠 Generar Consejo", "🏢 Recursos"]
+        "English": ["💡 Water Tips", "🧠 Ask for a Tip", "🏢 Resources"],
+        "Español": ["💡 Consejos de Agua", "🧠 Pedir Consejo", "🏢 Recursos"]
     },
     "ask_question_tip": {
         "English": "🔍 What kind of water problem do you have?",
@@ -82,11 +76,7 @@ msgs = {
         "English": "You can find these materials at supermarkets, camping stores, shelters, or community centers.",
         "Español": "Puedes encontrar estos materiales en supermercados, tiendas de campamento, refugios o centros comunitarios."
     },
-    "generate_prompt": {
-        "English": "Give a very short tip about how to keep drinking water safe to drink, especially for people living outdoors or in emergency situations. Keep it simple.",
-        "Español": "Da un consejo muy corto sobre cómo mantener el agua potable segura para beber, especialmente para personas que viven al aire libre o en situaciones de emergencia. Hazlo simple."
-    },
-    "generate_btn": {"English": "🔄 Generate Tip", "Español": "🔄 Generar Consejo"},
+    "generate_btn": {"English": "🔎 Get Water Tip", "Español": "🔎 Obtener Consejo"},
     "resources_list": {
         "English": """
 - [Downtown Streets Team](https://www.streetsteam.org/)
@@ -188,8 +178,6 @@ if page == msgs["map"][language]:
 elif page == msgs["help_center"][language]:
     st.header(msgs["help_center"][language])
 
-    st.image(water_image, width=600, caption="Clean Water for Everyone 💧")
-
     if "current_page" not in st.session_state:
         st.session_state["current_page"] = ""
 
@@ -249,17 +237,45 @@ elif page == msgs["help_center"][language]:
     elif st.session_state["current_page"] == "generate":
         st.subheader("🧠 " + (msgs["generate_btn"][language]))
 
-        if st.button("🔄 New Tip" if language == "English" else "🔄 Nuevo Consejo", key="gpttip"):
-            with st.spinner("Thinking..."):
-                try:
-                    prompt = msgs["generate_prompt"][language]
-                    resp = openai.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[{"role": "user", "content": prompt}]
-                    )
-                    st.success(resp.choices[0].message.content.strip())
-                except Exception:
-                    st.error("⚠️ Sorry, couldn't generate a tip. Please try again later.")
+        example_questions = {
+            "English": [
+                "How do I clean river water to drink?",
+                "Is rainwater safe to drink?",
+                "How long should I boil water to make it safe?",
+                "How to store water safely outdoors?"
+            ],
+            "Español": [
+                "¿Cómo limpiar el agua de un río para beber?",
+                "¿Es seguro beber agua de lluvia?",
+                "¿Cuánto tiempo debo hervir el agua?",
+                "¿Cómo almacenar agua de manera segura al aire libre?"
+            ]
+        }
+
+        st.write("💬 " + ("Pick an example or ask your own question:" if language == "English" else "Elige un ejemplo o escribe tu propia pregunta:"))
+
+        example = st.selectbox(
+            "Example Questions:" if language == "English" else "Preguntas de ejemplo:",
+            [""] + example_questions[language]
+        )
+
+        user_question = st.text_input(
+            "Ask your water safety question:" if language == "English" else "Pregunta sobre seguridad del agua:",
+            value=example if example else ""
+        )
+
+        if user_question:
+            if st.button("🔎 Get Water Tip" if language == "English" else "🔎 Obtener Consejo"):
+                with st.spinner("Thinking..."):
+                    try:
+                        prompt = f"Answer simply for someone living outdoors: {user_question}"
+                        resp = openai.chat.completions.create(
+                            model="gpt-3.5-turbo",
+                            messages=[{"role": "user", "content": prompt}]
+                        )
+                        st.success(resp.choices[0].message.content.strip())
+                    except Exception:
+                        st.error("⚠️ Sorry, couldn't generate a tip. Please try again later.")
 
     elif st.session_state["current_page"] == "resources":
         st.subheader("🏢 " + (msgs["help_options"][language][2]))
