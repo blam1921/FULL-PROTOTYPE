@@ -42,22 +42,14 @@ def load_data():
         data['timestamp_dt'] = pd.to_datetime(data['timestamp'])
         not_expired = data['timestamp_dt'] + timedelta(hours=ALERT_EXPIRATION_HOURS) > now
         expired = data[~not_expired]
-    
+
         if not expired.empty:
             # Some expired alerts found, remove them
             data = data[not_expired].drop(columns=["timestamp_dt"])
-    
-            # Update the Google Sheets with the new filtered data
-            try:
-                conn.update(worksheet=SHEET_NAME, data=data)
-                st.success("Expired alerts removed successfully.")
-            except Exception as e:
-                st.error(f"Failed to update Google Sheets: {e}")
+            conn.update(worksheet=SHEET_NAME, data=data)
         else:
             data = data.drop(columns=["timestamp_dt"])
 
-
-    
     return data
 
 # Initialize the alerts data from Google Sheets
