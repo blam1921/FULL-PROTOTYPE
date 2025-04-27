@@ -44,11 +44,9 @@ def load_data():
         expired = data[~not_expired]
 
         if not expired.empty:
-            # Remove expired alerts and prepare data for update
+            # Some expired alerts found, remove them
             data = data[not_expired].drop(columns=["timestamp_dt"])
-            # Ensure the data format is compatible with the GSheets connection (list of lists or dict)
-            data_for_update = data.values.tolist()  # Converts DataFrame to a list of lists
-            conn.update(worksheet=SHEET_NAME, data=data_for_update)
+            conn.update(worksheet=SHEET_NAME, data=data)
         else:
             data = data.drop(columns=["timestamp_dt"])
     
