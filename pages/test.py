@@ -25,7 +25,7 @@ else:
 
 # Google Sheets Setup
 SHEET_NAME = "alerts"
-conn = GSheetsConnection(sheet_name=SHEET_NAME)  # Correctly connect to Google Sheets
+conn = GSheetsConnection(connection_name="gsheets", sheet_name=SHEET_NAME)
 
 # Pull existing alerts from the Google Sheet
 existing_alerts = conn.get_all_rows()  # Use the connection's `get_all_rows` method to fetch data
