@@ -68,19 +68,21 @@ with st.form(key='resource_form'):
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
     submit_button = st.form_submit_button(label='Generate Alert')
 
-if geocode_button and address:
-    if OPENCAGE_API_KEY:
-        try:
-            geo_url = f"https://api.opencagedata.com/geocode/v1/json?q={address}&key={OPENCAGE_API_KEY}"
-            geo_response = requests.get(geo_url).json()
+# Automatically generate map when address is input
+if address and OPENCAGE_API_KEY:
+    try:
+        geo_url = f"https://api.opencagedata.com/geocode/v1/json?q={address}&key={OPENCAGE_API_KEY}"
+        geo_response = requests.get(geo_url).json()
+        if geo_response['results']:
             coords = geo_response['results'][0]['geometry']
             st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
 
+            # Show map for the coordinates
             st.map([{"lat": coords['lat'], "lon": coords['lng']}])
-        except Exception as e:
-            st.error(f"Could not find coordinates. Check the address or try again.")
-    else:
-        st.error("❌ OpenCage API key not set. Cannot autofill coordinates.")
+        else:
+            st.error("No coordinates found for the provided address.")
+    except Exception as e:
+        st.error(f"Could not find coordinates. Check the address or try again: {e}")
 
 if submit_button:
     if client:
