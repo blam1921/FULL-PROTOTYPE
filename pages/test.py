@@ -14,6 +14,8 @@ if "consent_given" not in st.session_state or not st.session_state.consent_given
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 
+client = OpenAI()
+
 # Google Sheets Setup
 SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
