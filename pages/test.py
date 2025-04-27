@@ -1,8 +1,8 @@
 import streamlit as st
 import os
 import requests
-from datetime import datetime
 import pandas as pd
+from datetime import datetime
 from streamlit_gsheets import GSheetsConnection
 
 # Check user consent
@@ -69,22 +69,20 @@ if geocode_button and address:
         st.error("❌ OpenCage API key not set. Cannot autofill coordinates.")
 
 if submit_button:
-    # Validation
+    # Validate required fields
     if not location_name or not address or not hours:
-        st.error("❌ Please fill in all required fields: Location Name, Address, and Hours.")
+        st.error("❌ Please fill in all required fields.")
     else:
-        # Prepare the alert details
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-        prompt = f"""
-        You are helping homeless users find resources. 
-        Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
-        It is available {hours}. 
-        Keep it positive and encouraging.
-        """
+        # Generate the alert message
+        if client:
+            prompt = f"""
+            You are helping homeless users find resources. 
+            Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
+            It is available {hours}. 
+            Keep it positive and encouraging.
+            """
 
-        try:
-            # Generate alert message using OpenAI
-            if client:
+            try:
                 response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "system", "content": "You write short, friendly community alerts."},
@@ -93,35 +91,33 @@ if submit_button:
                     max_tokens=100
                 )
                 message = response.choices[0].message.content.strip()
-            else:
-                st.error("❌ OpenAI API key not set. Cannot generate alerts.")
-                return
 
-            alert_entry = {
-                "timestamp": timestamp,
-                "type": resource_type,
-                "message": message,
-                "location_name": location_name,
-                "address": address,
-                "hours": hours,
-                "comments": []  # Initialize an empty list for comments
-            }
+                # Build the alert entry
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+                alert_entry = {
+                    "timestamp": timestamp,
+                    "type": resource_type,
+                    "message": message,
+                    "location_name": location_name,
+                    "address": address,
+                    "hours": hours,
+                    "comments": ""
+                }
 
-            # Load existing data and append the new alert
-            existing_data = load_data()
+                # Append the new alert to the existing alerts
+                alerts = pd.concat([alerts, pd.DataFrame([alert_entry])], ignore_index=True)
 
-            # Append the new alert entry to the existing data
-            updated_data = pd.concat([existing_data, pd.DataFrame([alert_entry])], ignore_index=True)
+                # Update the Google Sheets
+                conn.update(worksheet=SHEET_NAME, data=alerts)
 
-            # Update Google Sheets with the new alert data
-            conn.update(worksheet=SHEET_NAME, data=updated_data)
+                # Success message
+                st.success("✅ Alert generated successfully!")
+                st.info(message)
 
-            # Success message
-            st.success("✅ Alert generated and submitted successfully!")
-            st.info(message)  # Display the generated message
-
-        except Exception as e:
-            st.error(f"Error generating alert: {e}")
+            except Exception as e:
+                st.error(f"Error generating alert: {e}")
+        else:
+            st.error("❌ OpenAI API key not set. Cannot generate alerts.")
 
 st.divider()
 
@@ -140,15 +136,13 @@ if filtered_alerts:
 
         # Comments Section
         with st.expander("💬 Add/View Comments"):
-            for comment in alert['comments']:
-                st.write(f"🗨️ {comment}")
+            st.write(f"🗨️ {alert['comments']}")
             new_comment = st.text_input(f"Add a comment for alert #{idx}", key=f"comment_{idx}")
             if st.button(f"Submit Comment #{idx}", key=f"submit_comment_{idx}"):
-                alert['comments'].append(new_comment)
+                # Add the comment to the alert and update the Google Sheets
+                alert['comments'] += f"\n🗨️ {new_comment}"
                 st.success("Comment added!")
-                # Save updated alerts with new comment to Google Sheets
-                updated_data = pd.concat([alerts, pd.DataFrame([alert])], ignore_index=True)
-                conn.update(worksheet=SHEET_NAME, data=updated_data)
+                conn.update(worksheet=SHEET_NAME, data=alerts)
 else:
     st.info("No alerts to display.")
 
