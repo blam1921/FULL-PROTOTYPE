@@ -1,4 +1,11 @@
 import streamlit as st
+
+# 🔒 Consent check FIRST
+if "consent_given" not in st.session_state or not st.session_state.consent_given:
+    st.error("❌ Consent is required to use this app. Please return to the homepage.")
+    st.stop()
+
+# ✅ After consent check, import everything else
 import openai
 import pandas as pd
 import pydeck as pdk
@@ -6,15 +13,17 @@ import requests
 import math
 import os
 
-#openai.api_key = st.secrets["openai_key"]
+# OpenAI Key
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
+# Page Setup
 st.set_page_config(
     page_title="Water Access Support",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+# Multilingual Setup
 msgs = {
     "nav_title": {"English": "Navigation", "Español": "Navegación"},
     "map": {"English": "Map", "Español": "Mapa"},
@@ -62,12 +71,14 @@ msgs = {
     "thanks_report": {"English": "Thanks for your feedback!", "Español": "¡Gracias por tus comentarios!"}
 }
 
+# 🌟 Only show sidebar menu if consent was given
 language = st.sidebar.selectbox(
     msgs["lang_label"]["English"],
     ["English", "Español"]
 )
 
 st.sidebar.title(msgs["nav_title"][language])
+
 page = st.sidebar.radio(
     "",
     [
@@ -79,6 +90,7 @@ page = st.sidebar.radio(
     ]
 )
 
+# Utilities
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0  # Earth radius in km
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
@@ -108,13 +120,13 @@ def fetch_water_sources():
     except:
         return pd.DataFrame(columns=["lat","lon","name"])
 
+# Pages
 if page == msgs["map"][language]:
     st.header(msgs["map"][language])
     df = fetch_water_sources()
     if df.empty:
         st.error(msgs["error_fetch"][language])
     else:
-        # Filter by radius around San José center
         center_lat, center_lon = 37.3382, -121.8863
         radius = st.sidebar.slider(
             msgs["radius"][language], 0.5, 10.0, 5.0, 0.5
@@ -172,5 +184,4 @@ elif page == msgs["report"][language]:
     st.header(msgs["report"][language])
     feedback = st.text_area(msgs["report_placeholder"][language])
     if st.button(msgs["submit"][language]):
-        # In a real app you'd send this to your backend
         st.success(msgs["thanks_report"][language])
