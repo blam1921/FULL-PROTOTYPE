@@ -148,22 +148,26 @@ filtered_alerts = [
 
 if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
-        st.markdown(f"**{idx}.** {alert['message']}")
+        with st.expander(f"🔔 {idx}. {alert['message']}"):
+            st.markdown(f"**Resource Type:** {alert['type']}")
+            st.markdown(f"**Location Name:** {alert['location_name']}")
+            st.markdown(f"**Address:** {alert['address']}")
+            st.markdown(f"**Hours Available:** {alert['hours']}")
+            st.markdown(f"**Created At:** {alert['timestamp']}")
 
-        # Calculate time remaining for each alert
-        expiration_time = datetime.strptime(alert['expiration_time'], "%Y-%m-%d %H:%M")
-        time_left = expiration_time - datetime.now()
+            # Calculate and display time remaining
+            expiration_time = datetime.strptime(alert['expiration_time'], "%Y-%m-%d %H:%M")
+            time_left = expiration_time - datetime.now()
+            if time_left.total_seconds() > 0:
+                st.markdown(f"🕒 **Time Remaining:** {str(time_left).split('.')[0]}")
+            else:
+                st.markdown("❌ This alert has expired and will be removed shortly.")
 
-        # Display the remaining time
-        if time_left.total_seconds() > 0:
-            st.markdown(f"🕒 Time Remaining: {str(time_left).split('.')[0]}")  # Format time without milliseconds
-        else:
-            st.markdown("❌ This alert has expired and will be removed shortly.")
-
-            # Automatically remove expired alerts from the displayed list
-            alerts = alerts[alerts['timestamp'] != alert['timestamp']]
-            conn.update(worksheet=SHEET_NAME, data=alerts)
-
+            # If coordinates exist, show a mini map
+            if alert.get('coordinates'):
+                coords = alert['coordinates']
+                if isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
+                    st.map([{"lat": coords['lat'], "lon": coords['lng']}])
 else:
     st.info("No alerts to display.")
 
