@@ -103,6 +103,7 @@ else:
 
 st.logo(
     LOGO_URL,
+    large,
     link="https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true",
     icon_image=LOGO_URL,
 )
