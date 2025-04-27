@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
@@ -29,11 +29,37 @@ else:
 SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
+# Set expiration duration (in hours)
+ALERT_EXPIRATION_HOURS = 48
+
 def load_data():
+    # Load existing data from Google Sheets
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
-    data = data.dropna(how="all")
+    data = data.dropna(how="all")  # Ensure no empty rows are included
+
+    # Ensure upvotes and downvotes columns exist
+    if 'upvotes' not in data.columns:
+        data['upvotes'] = 0
+    if 'downvotes' not in data.columns:
+        data['downvotes'] = 0
+
+    # Remove expired alerts
+    now = datetime.now()
+    if not data.empty:
+        data['timestamp_dt'] = pd.to_datetime(data['timestamp'])
+        not_expired = data['timestamp_dt'] + timedelta(hours=ALERT_EXPIRATION_HOURS) > now
+        expired = data[~not_expired]
+
+        if not expired.empty:
+            # Some expired alerts found, remove them
+            data = data[not_expired].drop(columns=["timestamp_dt"])
+            conn.update(worksheet=SHEET_NAME, data=data)
+        else:
+            data = data.drop(columns=["timestamp_dt"])
+    
     return data
 
+# Initialize the alerts data from Google Sheets
 alerts = load_data()
 
 st.title("💧 LifeDrop - Community Alert System")
@@ -57,6 +83,7 @@ if geocode_button and address:
             geo_response = requests.get(geo_url).json()
             coords = geo_response['results'][0]['geometry']
             st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
+
             st.map([{"lat": coords['lat'], "lon": coords['lng']}])
         except Exception as e:
             st.error(f"Could not find coordinates. Check the address or try again.")
@@ -74,8 +101,10 @@ if submit_button:
         try:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": "You write short, friendly community alerts."},
-                          {"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": "You write short, friendly community alerts."},
+                    {"role": "user", "content": prompt}
+                ],
                 temperature=0.7,
                 max_tokens=100
             )
@@ -89,6 +118,8 @@ if submit_button:
                 "location_name": location_name,
                 "address": address,
                 "hours": hours,
+                "upvotes": 0,
+                "downvotes": 0
             }
 
             updated_alerts = pd.concat([alerts, pd.DataFrame([alert])], ignore_index=True)
@@ -118,10 +149,42 @@ filtered_alerts = [
 if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
         st.markdown(f"**{idx}.** {alert['message']}")
+
+        alert_id = f"{alert['timestamp']}_{alert['location_name']}"
+        if f"voted_{alert_id}" not in st.session_state:
+            st.session_state[f"voted_{alert_id}"] = False
+
+        col1, col2 = st.columns(2)
+        with col1:
+            upvote_button = st.button(f"👍 Upvote ({alert.get('upvotes', 0)})", key=f"upvote_{idx}")
+        with col2:
+            downvote_button = st.button(f"👎 Downvote ({alert.get('downvotes', 0)})", key=f"downvote_{idx}")
+
+        if (upvote_button or downvote_button) and not st.session_state[f"voted_{alert_id}"]:
+            alerts_df = load_data()
+            match = alerts_df[
+                (alerts_df['timestamp'] == alert['timestamp']) &
+                (alerts_df['location_name'] == alert['location_name'])
+            ].index
+
+            if len(match) > 0:
+                idx_match = match[0]
+                if upvote_button:
+                    alerts.at[idx_match, 'upvotes'] += 1
+                    st.success("You upvoted this alert! ✅")
+                if downvote_button:
+                    alerts.at[idx_match, 'downvotes'] += 1
+                    st.success("You downvoted this alert! 👎")
+
+                conn.update(worksheet=SHEET_NAME, data=alerts_df)
+                st.session_state[f"voted_{alert_id}"] = True
+            else:
+                st.error("⚠️ Could not find the alert to update. Maybe try refreshing the page?")
+        elif (upvote_button or downvote_button) and st.session_state[f"voted_{alert_id}"]:
+            st.warning("You already voted on this alert in this session.")
 else:
     st.info("No alerts to display.")
 
-# Download option
 st.download_button(
     label="📥 Download Alerts as Text File",
     data="\n\n".join([a["message"] for a in alerts_dicts]),
