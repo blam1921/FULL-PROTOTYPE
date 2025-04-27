@@ -69,19 +69,21 @@ with st.form(key='resource_form'):
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
     submit_button = st.form_submit_button(label='Generate Alert')
 
-# Automatically autofill coordinates when user clicks "Autofill Coordinates with Address"
-if address and OPENCAGE_API_KEY and geocode_button:
+# Automatically generate map when address is input
+if address and OPENCAGE_API_KEY:
     try:
         geo_url = f"https://api.opencagedata.com/geocode/v1/json?q={address}&key={OPENCAGE_API_KEY}"
         geo_response = requests.get(geo_url).json()
         if geo_response['results']:
             coords = geo_response['results'][0]['geometry']
-            st.success(f"📍 Coordinates autofilled successfully.")
+            st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
+
+            # Show map for the coordinates
+            st.map([{"lat": coords['lat'], "lon": coords['lng']}])
         else:
             st.error("No coordinates found for the provided address.")
     except Exception as e:
         st.error(f"Could not find coordinates. Check the address or try again: {e}")
-
 
 if submit_button:
     if client:
@@ -153,19 +155,6 @@ if filtered_alerts:
             st.markdown(f"**Address:** {alert['address']}")
             st.markdown(f"**Hours Available:** {alert['hours']}")
             st.markdown(f"**Created At:** {alert['timestamp']}")
-
-            # Show Coordinates if available
-            if alert.get('coordinates'):
-                coords = alert['coordinates']
-                if isinstance(coords, str):
-                    try:
-                        coords = ast.literal_eval(coords)
-                    except Exception as e:
-                        st.error(f"Error parsing coordinates: {e}")
-                        coords = None
-
-                if coords and isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
-                    st.markdown(f"**Coordinates:** {coords['lat']}, {coords['lng']}")
 
             expiration_time = datetime.strptime(alert['expiration_time'], "%Y-%m-%d %H:%M")
             time_left = expiration_time - datetime.now()
