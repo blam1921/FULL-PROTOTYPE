@@ -160,7 +160,7 @@ if filtered_alerts:
             else:
                 st.markdown("❌ This alert has expired and will be removed shortly.")
 
-            # Parse and show coordinates if available
+            # Show coordinates if available
             if alert.get('coordinates'):
                 coords = alert['coordinates']
                 if isinstance(coords, str):
@@ -171,6 +171,7 @@ if filtered_alerts:
                         coords = None
 
                 if coords and isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
+                    st.markdown(f"**Coordinates:** Latitude: {coords['lat']}, Longitude: {coords['lng']}")
                     st.map([{"lat": coords['lat'], "lon": coords['lng']}])
 else:
     st.info("No alerts to display.")
