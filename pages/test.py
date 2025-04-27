@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 from openai import OpenAI
-import ast
 
 # Check user consent
 if "consent_given" not in st.session_state or not st.session_state.consent_given:
@@ -52,8 +51,8 @@ def load_data():
 # Initialize the alerts data from Google Sheets
 alerts = load_data()
 
-st.title("💧 Community Bulletin System")
-st.caption("Manage and send notifications for water, meals, showers, and clinics.")
+st.title("💧 LifeDrop - Community Alert System")
+st.caption("Manage and send alerts for water, meals, showers, and clinics.")
 
 # Add New Resource
 st.header("➕ Add New Resource")
@@ -67,7 +66,7 @@ with st.form(key='resource_form'):
     timer_duration = st.selectbox("Select Timer Duration (Minutes)", [1, 5, 10, 15, 30, 60, 120], index=4)  # Default 60 minutes
 
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
-    submit_button = st.form_submit_button(label='Generate Message')
+    submit_button = st.form_submit_button(label='Generate Alert')
 
 # Automatically generate map when address is input
 if address and OPENCAGE_API_KEY:
@@ -77,6 +76,9 @@ if address and OPENCAGE_API_KEY:
         if geo_response['results']:
             coords = geo_response['results'][0]['geometry']
             st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
+
+            # Show map for the coordinates
+            st.map([{"lat": coords['lat'], "lon": coords['lng']}])
         else:
             st.error("No coordinates found for the provided address.")
     except Exception as e:
@@ -119,7 +121,7 @@ if submit_button:
             updated_alerts = pd.concat([alerts, pd.DataFrame([alert])], ignore_index=True)
             conn.update(worksheet=SHEET_NAME, data=updated_alerts)
 
-            st.success("✅ Message generated and submitted successfully!")
+            st.success("✅ Alert generated and submitted successfully!")
             st.info(message)
 
             # If we have coordinates, show the map below the alert
@@ -129,13 +131,12 @@ if submit_button:
         except Exception as e:
             st.error(f"Error generating alert: {e}")
     else:
-        st.error("❌ OpenAI API key not set. Cannot generate message.")
+        st.error("❌ OpenAI API key not set. Cannot generate alerts.")
 
 st.divider()
 
 # Filtering
-st.header("📋 Community Announcements")
-st.caption("⚠️ Please use caution when visiting any resource shared here. Ensure your safety by verifying details and being mindful of the source of the information.")
+st.header("📋 Generated Alerts")
 filter_type = st.selectbox("Filter by Type", ["All", "Water Station", "Free Meal", "Shower", "Health Clinic"])
 
 alerts_dicts = alerts.to_dict(orient="records")
@@ -154,35 +155,24 @@ if filtered_alerts:
             st.markdown(f"**Hours Available:** {alert['hours']}")
             st.markdown(f"**Created At:** {alert['timestamp']}")
 
+            # Calculate and display time remaining
             expiration_time = datetime.strptime(alert['expiration_time'], "%Y-%m-%d %H:%M")
             time_left = expiration_time - datetime.now()
             if time_left.total_seconds() > 0:
                 st.markdown(f"🕒 **Time Remaining:** {str(time_left).split('.')[0]}")
             else:
-                st.markdown("❌ This message has expired and will be removed shortly.")
+                st.markdown("❌ This alert has expired and will be removed shortly.")
 
-            # Show coordinates if available
+            # If coordinates exist, show a mini map
             if alert.get('coordinates'):
                 coords = alert['coordinates']
-                if isinstance(coords, str):
-                    try:
-                        coords = ast.literal_eval(coords)
-                    except Exception as e:
-                        st.error(f"Error parsing coordinates: {e}")
-                        coords = None
-
-                if coords and isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
-                    # Create a Google Maps link
-                    google_maps_url = f"https://www.google.com/maps?q={coords['lat']},{coords['lng']}"
-                    st.markdown(f"**Coordinates:** [Latitude: {coords['lat']}, Longitude: {coords['lng']}]({google_maps_url})", unsafe_allow_html=True)
+                if isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
                     st.map([{"lat": coords['lat'], "lon": coords['lng']}])
-
 else:
     st.info("No alerts to display.")
 
-
 st.download_button(
-    label="📥 Download Bulletin as Text File",
+    label="📥 Download Alerts as Text File",
     data="\n\n".join([a["message"] for a in alerts_dicts]),
     file_name="alerts.txt",
     mime="text/plain"
