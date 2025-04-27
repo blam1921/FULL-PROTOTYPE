@@ -11,6 +11,9 @@ import pydeck as pdk
 import requests
 import math
 
+LOGO_URL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
+st.logo(LOGO_URL, size="large", link=None, icon_image=None)
+
 # Correct way to fetch key
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
