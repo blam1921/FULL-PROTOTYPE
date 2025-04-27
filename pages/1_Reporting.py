@@ -6,16 +6,15 @@ from streamlit_gsheets import GSheetsConnection
 import matplotlib.pyplot as plt
 import re
 
-LOGO_URL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
-st.logo(LOGO_URL, size="large", link=None, icon_image=None)
-
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-
-
 # 🔒 Check global consent at page load
 if "consent_given" not in st.session_state or not st.session_state.consent_given:
     st.error("❌ Consent is required to use this app. Please return to the homepage.")
     st.stop()
+
+LOGO_URL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
+st.logo(LOGO_URL, size="large", link=None, icon_image=None)
+
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # Fetch existing reports data
 def load_data():
