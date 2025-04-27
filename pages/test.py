@@ -24,6 +24,9 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 # Set expiration duration (in hours)
 ALERT_EXPIRATION_HOURS = 48
 
+# Store coordinates globally to avoid scope issues
+coords = None
+
 def load_data():
     # Load existing data from Google Sheets
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
@@ -108,6 +111,7 @@ if submit_button:
                 "message": message,
                 "location_name": location_name,
                 "address": address,
+                "coordinates": coords,  # Store coordinates here if they exist
                 "hours": hours,
                 "expiration_time": expiration_time.strftime("%Y-%m-%d %H:%M")  # Store expiration time
             }
@@ -117,6 +121,10 @@ if submit_button:
 
             st.success("✅ Alert generated and submitted successfully!")
             st.info(message)
+
+            # If we have coordinates, show the map below the alert
+            if coords:
+                st.map([{"lat": coords['lat'], "lon": coords['lng']}])
 
         except Exception as e:
             st.error(f"Error generating alert: {e}")
