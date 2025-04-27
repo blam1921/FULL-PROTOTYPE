@@ -76,10 +76,6 @@ if address and OPENCAGE_API_KEY:
         geo_response = requests.get(geo_url).json()
         if geo_response['results']:
             coords = geo_response['results'][0]['geometry']
-            st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
-
-            # Show map for the coordinates
-            st.map([{"lat": coords['lat'], "lon": coords['lng']}])
         else:
             st.error("No coordinates found for the provided address.")
     except Exception as e:
