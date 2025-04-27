@@ -171,8 +171,11 @@ if filtered_alerts:
                         coords = None
 
                 if coords and isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
-                    st.markdown(f"**Coordinates:** Latitude: {coords['lat']}, Longitude: {coords['lng']}")
+                    # Create a Google Maps link
+                    google_maps_url = f"https://www.google.com/maps?q={coords['lat']},{coords['lng']}"
+                    st.markdown(f"**Coordinates:** [Latitude: {coords['lat']}, Longitude: {coords['lng']}]({google_maps_url})", unsafe_allow_html=True)
                     st.map([{"lat": coords['lat'], "lon": coords['lng']}])
+
 else:
     st.info("No alerts to display.")
 
