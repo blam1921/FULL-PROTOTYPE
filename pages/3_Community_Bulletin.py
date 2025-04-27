@@ -163,6 +163,9 @@ if filtered_alerts:
                 st.markdown(f"🕒 **Time Remaining:** {str(time_left).split('.')[0]}")
             else:
                 st.markdown("❌ This message has expired and will be removed shortly.")
+                # Automatically remove expired alerts from the displayed list
+                alerts = alerts[alerts['timestamp'] != alert['timestamp']]
+                conn.update(worksheet=SHEET_NAME, data=alerts)
 
             # Show coordinates if available
             if alert.get('coordinates'):
