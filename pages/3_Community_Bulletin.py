@@ -149,6 +149,8 @@ filtered_alerts = [
 ]
 
 if filtered_alerts:
+    expired_alerts = []  # List to store expired alerts for removal later
+    
     for idx, alert in enumerate(filtered_alerts, 1):
         with st.expander(f"🔔 {idx}. {alert['message']}"):
             st.markdown(f"**Resource Type:** {alert['type']}")
@@ -159,13 +161,12 @@ if filtered_alerts:
 
             expiration_time = datetime.strptime(alert['expiration_time'], "%Y-%m-%d %H:%M")
             time_left = expiration_time - datetime.now()
+
             if time_left.total_seconds() > 0:
                 st.markdown(f"🕒 **Time Remaining:** {str(time_left).split('.')[0]}")
             else:
                 st.markdown("❌ This message has expired and will be removed shortly.")
-                # Automatically remove expired alerts from the displayed list
-                alerts = alerts[alerts['timestamp'] != alert['timestamp']]
-                conn.update(worksheet=SHEET_NAME, data=alerts)
+                expired_alerts.append(alert)  # Store expired alert for removal after the loop
 
             # Show coordinates if available
             if alert.get('coordinates'):
@@ -183,8 +184,18 @@ if filtered_alerts:
                     st.markdown(f"**Coordinates:** [Latitude: {coords['lat']}, Longitude: {coords['lng']}]({google_maps_url})", unsafe_allow_html=True)
                     st.map([{"lat": coords['lat'], "lon": coords['lng']}])
 
+    # After displaying all alerts, remove the expired ones
+    if expired_alerts:
+        # Filter out the expired alerts from the main alerts DataFrame
+        expired_alerts_timestamps = [alert['timestamp'] for alert in expired_alerts]
+        alerts = alerts[~alerts['timestamp'].isin(expired_alerts_timestamps)]
+        
+        # Update the Google Sheets with the remaining non-expired alerts
+        conn.update(worksheet=SHEET_NAME, data=alerts)
+
 else:
     st.info("No alerts to display.")
+
 
 
 st.download_button(
