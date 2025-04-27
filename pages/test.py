@@ -134,7 +134,8 @@ if submit_button:
 st.divider()
 
 # Filtering
-st.header("📋 Community Bulletin")
+st.header("📋 Community Announcements")
+st.caption("⚠️ Please use caution when visiting any resource shared here. Ensure your safety by verifying details and being mindful of the source of the information.")
 filter_type = st.selectbox("Filter by Type", ["All", "Water Station", "Free Meal", "Shower", "Health Clinic"])
 
 alerts_dicts = alerts.to_dict(orient="records")
