@@ -9,6 +9,7 @@ import pandas as pd
 import pydeck as pdk
 import requests
 import math
+import os
 
 # ✅ Set OpenAI API Key
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
