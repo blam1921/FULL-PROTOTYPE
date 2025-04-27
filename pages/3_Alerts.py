@@ -2,23 +2,17 @@ import streamlit as st
 if "consent_given" not in st.session_state or not st.session_state.consent_given:
     st.error("❌ Consent is required to use this app. Please return to the homepage.")
     st.stop()
-
 import requests
-import os
 from openai import OpenAI
 
-# Read API keys from environment variables
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+# Set your API keys
+client = OpenAI(OpenAPI)
+OPENCAGE_API_KEY = (GoogleAPI)
 
-client = OpenAI(api_key=OPENAI_API_KEY)
-
-# Initialize session state for alerts
-if "alerts" not in st.session_state:
-    st.session_state.alerts = []
-
-st.set_page_config(layout="wide")
-st.title("💧 WaterWatch - Community Alert System")
+# In-memory lists
+alerts = []
+comments = {}
+st.title("💧 LifeDrop - Community Alert System")
 st.caption("Manage and send alerts for water, meals, showers, and clinics.")
 
 # Add New Resource
@@ -29,63 +23,56 @@ with st.form(key='resource_form'):
     address = st.text_input("Address")
     hours = st.text_input("Hours Available (e.g., 9AM - 6PM)")
 
+    # Autofill Coordinates via Geocoding (optional)
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
     submit_button = st.form_submit_button(label='Generate Alert')
 
-# Geocoding with Google Maps API (clean version)
-if geocode_button:
-    if not GOOGLE_API_KEY:
-        st.error("❌ GOOGLE_API_KEY is missing. Please set it as an environment variable.")
-    elif not address:
-        st.warning("⚠️ Please enter an address before clicking the autofill button.")
-    else:
-        try:
-            geo_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={GOOGLE_API_KEY}"
-            response = requests.get(geo_url)
-            geo_response = response.json()
+if geocode_button and address:
+    try:
+        geo_url = f"https://api.opencagedata.com/geocode/v1/json?q={address}&key={OPENCAGE_API_KEY}"
+        geo_response = requests.get(geo_url).json()
+        coords = geo_response['results'][0]['geometry']
+        st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
 
-            if geo_response["status"] == "OK" and geo_response["results"]:
-                coords = geo_response["results"][0]["geometry"]["location"]
-                lat, lng = coords['lat'], coords['lng']
-                st.success(f"📍 Coordinates found: Latitude: `{lat}`, Longitude: `{lng}`")
-            else:
-                st.warning(f"❌ Google API did not return coordinates. Status: {geo_response['status']}")
-        except Exception as e:
-            st.error(f"🚨 Error while requesting coordinates: {e}")
+        # ➡️ Add the map WITHOUT pandas
+        st.map([{"lat": coords['lat'], "lon": coords['lng']}])
+        # ⬅️ End of added map
+    except Exception as e:
+        st.error(f"Could not find coordinates. Check the address or try again.")
 
-# Alert Generation with OpenAI
 if submit_button:
-    if not OPENAI_API_KEY:
-        st.error("Missing OpenAI API key. Set OPENAI_API_KEY in your environment.")
-    else:
-        prompt = (
-            f"You are helping homeless users find resources. "
-            f"Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}. "
-            f"It is available {hours}. Keep it positive and encouraging."
+    # Prepare prompt
+    prompt = f"""
+    You are helping homeless users find resources. 
+    Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
+    It is available {hours}. 
+    Keep it positive and encouraging.
+    """
+
+    # Generate alert with OpenAI
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You write short, friendly community alerts."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=100
         )
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You write short, friendly community alerts."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=100
-            )
-            message = response.choices[0].message.content.strip()
+        message = response.choices[0].message.content.strip()
 
-            alert_entry = {
-                "type": resource_type,
-                "message": message,
-                "comments": []
-            }
-            st.session_state.alerts.append(alert_entry)
-            st.success("✅ Alert generated successfully!")
-            st.info(message)
+        alert_entry = {
+            "type": resource_type,
+            "message": message,
+            "comments": []
+        }
+        alerts.append(alert_entry)
+        st.success("✅ Alert generated successfully!")
+        st.info(message)
 
-        except Exception as e:
-            st.error(f"Error generating alert: {e}")
+    except Exception as e:
+        st.error(f"Error generating alert: {e}")
 
 st.divider()
 
@@ -94,7 +81,7 @@ st.header("📋 Generated Alerts")
 filter_type = st.selectbox("Filter by Type", ["All", "Water Station", "Free Meal", "Shower", "Health Clinic"])
 
 filtered_alerts = [
-    alert for alert in st.session_state.alerts
+    alert for alert in alerts
     if filter_type == "All" or alert["type"] == filter_type
 ]
 
@@ -102,6 +89,7 @@ if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
         st.markdown(f"**{idx}.** {alert['message']}")
 
+        # Comments Section
         with st.expander("💬 Add/View Comments"):
             for comment in alert['comments']:
                 st.write(f"🗨️ {comment}")
@@ -112,9 +100,10 @@ if filtered_alerts:
 else:
     st.info("No alerts to display.")
 
+# Download option
 st.download_button(
     label="📥 Download Alerts as Text File",
-    data="\n\n".join([a["message"] for a in st.session_state.alerts]),
+    data="\n\n".join([a["message"] for a in alerts]),
     file_name="alerts.txt",
     mime="text/plain"
 )
