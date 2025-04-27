@@ -102,3 +102,6 @@ else:
     """)
     
 st.logo(LOGO_URL, size="large", link=None, icon_image=None)
+
+# Display the logo with a custom size using st.image()
+st.image(LOGO_URL, width=500)  # Adjust the width to your desired size
