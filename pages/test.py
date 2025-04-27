@@ -187,7 +187,8 @@ if filtered_alerts:
                         coords = None
 
                 if coords and isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
-                    st.map([{"lat": coords['lat'], "lon": coords['lng']}])
+                     st.markdown(f"**Coordinates:** {coords['lat']}, {coords['lng']}")
+                    
 else:
     st.info("No alerts to display.")
 
