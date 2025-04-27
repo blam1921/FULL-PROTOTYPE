@@ -154,10 +154,6 @@ if filtered_alerts:
             alerts = alerts[alerts['timestamp'] != alert['timestamp']]
             conn.update(worksheet=SHEET_NAME, data=alerts)
 
-        # If we have coordinates, show the map beneath the alert
-        if alert["coordinates"]:
-            st.map([{"lat": alert["coordinates"]['lat'], "lon": alert["coordinates"]['lng']}])
-
 else:
     st.info("No alerts to display.")
 
