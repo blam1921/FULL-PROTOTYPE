@@ -23,8 +23,9 @@ if OPENAI_API_KEY:
 else:
     client = None
 
-# Initialize GSheets connection
-gsheets_conn = GSheetsConnection(sheet_name='alerts', use_cache=True)
+# Google Sheets Setup
+SHEET_NAME = "alerts"
+conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Pull existing alerts from the Google Sheet
 existing_alerts = gsheets_conn.read()
