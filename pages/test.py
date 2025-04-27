@@ -54,16 +54,13 @@ with st.form(key='resource_form'):
 
 # Validate the fields when submitting the form
 if submit_button:
-    if not location_name or not address or not hours:
-        st.error("❌ Please fill in all required fields.")
-    else:
-        # Prepare prompt for generating the alert message
-        prompt = f"""
-        You are helping homeless users find resources. 
-        Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
-        It is available {hours}. 
-        Keep it positive and encouraging.
-        """
+    # Prepare prompt for generating the alert message
+    prompt = f"""
+    You are helping homeless users find resources. 
+    Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
+    It is available {hours}. 
+    Keep it positive and encouraging.
+    """
 
         if client:
             try:
