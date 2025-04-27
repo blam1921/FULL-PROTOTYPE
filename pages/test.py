@@ -181,7 +181,7 @@ else:
 
 
 st.download_button(
-    label="📥 Download Alerts as Text File",
+    label="📥 Download Bulletin as Text File",
     data="\n\n".join([a["message"] for a in alerts_dicts]),
     file_name="alerts.txt",
     mime="text/plain"
