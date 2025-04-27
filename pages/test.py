@@ -23,8 +23,14 @@ if OPENAI_API_KEY:
 else:
     client = None
 
-# Set up Google Sheets connection
-gsheets = GSheetsConnection(sheet_name="alerts")  
+# Google Sheets Setup
+ SHEET_NAME = "alerts"
+ conn = st.connection("gsheets", type=GSheetsConnection)
+
+# Pull existing alerts from the Google Sheet
+ existing_alerts = gsheets_conn.read()
+ existing_alerts = conn.read(worksheet=SHEET_NAME)
+ alerts = existing_alerts if existing_alerts is not None else []
 
 # Sheet columns
 columns = ["ID", "Type", "Message", "Comments", "Location Name", "Address", "Hours Available", "Coordinates (Lat)", "Coordinates (Lng)"]
