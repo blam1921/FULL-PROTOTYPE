@@ -13,6 +13,9 @@ import requests
 import math
 import os
 
+LOGO_URL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
+st.logo(LOGO_URL, size="large", link=None, icon_image=None)
+
 # OpenAI Key
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
