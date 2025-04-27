@@ -60,7 +60,7 @@ with st.form(key='resource_form'):
     hours = st.text_input("Hours Available (e.g., 9AM - 6PM)")
 
     # Timer dropdown for users to select alert expiration time
-    timer_duration = st.selectbox("Select Timer Duration (Minutes)", [5, 10, 15, 30, 60, 120], index=4)  # Default 60 minutes
+    timer_duration = st.selectbox("Select Timer Duration (Minutes)", [1, 5, 10, 15, 30, 60, 120], index=4)  # Default 60 minutes
 
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
     submit_button = st.form_submit_button(label='Generate Alert')
