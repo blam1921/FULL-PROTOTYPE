@@ -154,6 +154,19 @@ if filtered_alerts:
             st.markdown(f"**Hours Available:** {alert['hours']}")
             st.markdown(f"**Created At:** {alert['timestamp']}")
 
+            # Show Coordinates if available
+            if alert.get('coordinates'):
+                coords = alert['coordinates']
+                if isinstance(coords, str):
+                    try:
+                        coords = ast.literal_eval(coords)
+                    except Exception as e:
+                        st.error(f"Error parsing coordinates: {e}")
+                        coords = None
+
+                if coords and isinstance(coords, dict) and 'lat' in coords and 'lng' in coords:
+                    st.markdown(f"**Coordinates:** {coords['lat']}, {coords['lng']}")
+
             expiration_time = datetime.strptime(alert['expiration_time'], "%Y-%m-%d %H:%M")
             time_left = expiration_time - datetime.now()
             if time_left.total_seconds() > 0:
