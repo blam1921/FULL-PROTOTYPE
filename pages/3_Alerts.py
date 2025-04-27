@@ -9,8 +9,11 @@ if "consent_given" not in st.session_state or not st.session_state.consent_given
 
 # Set API keys from environment variables
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-OPENCAGE_API_KEY = os.getenv('GoogleAPIKEY'
-)
+OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
+
+# Allow manual entry if OpenCage API key is missing
+if not OPENCAGE_API_KEY:
+    OPENCAGE_API_KEY = st.text_input("🔑 Enter your OpenCage API Key:", type="password")
 
 # Initialize OpenAI client if key is available
 if OPENAI_API_KEY:
