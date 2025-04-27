@@ -25,16 +25,16 @@ else:
 
 # Google Sheets Setup
 SHEET_NAME = "alerts"
-conn = st.connection("gsheets", type=GSheetsConnection)
+conn = GSheetsConnection(sheet_name=SHEET_NAME)  # Correctly connect to Google Sheets
 
 # Pull existing alerts from the Google Sheet
-existing_alerts = conn.read(worksheet=SHEET_NAME)
+existing_alerts = conn.get_all_rows()  # Use the connection's `get_all_rows` method to fetch data
 alerts = existing_alerts if existing_alerts is not None else []
 
 # Sheet columns
 columns = ["ID", "Type", "Message", "Comments", "Location Name", "Address", "Hours Available", "Coordinates (Lat)", "Coordinates (Lng)"]
 
-# In-memory list of alerts
+# In-memory list of alerts (initialize as empty)
 alerts = []
 
 st.title("💧 LifeDrop - Community Alert System")
@@ -98,7 +98,7 @@ if submit_button:
             alerts.append(alert_entry)
 
             # Write the alert entry to Google Sheets
-            gsheets.append_row([
+            conn.append_row([
                 len(alerts),  # ID (auto-incremented by length of alerts list)
                 resource_type,
                 message,
@@ -125,7 +125,7 @@ st.header("📋 Generated Alerts")
 filter_type = st.selectbox("Filter by Type", ["All", "Water Station", "Free Meal", "Shower", "Health Clinic"])
 
 # Read alerts from Google Sheets
-alerts_from_sheet = gsheets.get_all_rows()
+alerts_from_sheet = conn.get_all_rows()
 
 filtered_alerts = [
     alert for alert in alerts_from_sheet
@@ -145,7 +145,7 @@ if filtered_alerts:
             if st.button(f"Submit Comment #{idx}", key=f"submit_comment_{idx}"):
                 # Add comment to Google Sheets
                 updated_comments = comments + [new_comment]
-                gsheets.update_row(idx, {"Comments": updated_comments})
+                conn.update_row(idx, {"Comments": updated_comments})
                 st.success("Comment added!")
 else:
     st.info("No alerts to display.")
@@ -157,4 +157,3 @@ st.download_button(
     file_name="alerts.txt",
     mime="text/plain"
 )
-
