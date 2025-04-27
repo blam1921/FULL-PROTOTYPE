@@ -26,8 +26,8 @@ def load_data():
 
     # Convert zipcodes to string early to prevent formatting issues
     if "zipcode" in data.columns:
-        data["zipcode"] = data["zipcode"].astype(int).astype(str)  # Fix for zipcodes
-    
+        data["zipcode"] = data["zipcode"].astype(str).str.strip()
+
     return data
 
 
