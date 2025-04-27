@@ -1,4 +1,8 @@
 import streamlit as st
+if "consent_given" not in st.session_state or not st.session_state.consent_given:
+    st.error("❌ Consent is required to use this app. Please return to the homepage.")
+    st.stop()
+
 import requests
 import os
 from openai import OpenAI
