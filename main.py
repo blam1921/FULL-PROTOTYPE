@@ -107,16 +107,3 @@ else:
     
 
 st.logo(LOGO_URL, size="large", link=None, icon_image=None)
-# Center and enlarge the logo using custom HTML and CSS
-st.markdown(
-    f"""
-    <style>
-        .logo-container img {{
-            width: 800px;  /* Adjust the width to make the logo larger */
-        }}
-    </style>
-    <div class="logo-container" style="text-align: center;">
-        <img src="{LOGO_URL}" alt="Streamlit Logo">
-    </div>
-    """, unsafe_allow_html=True
-)
