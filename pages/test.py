@@ -30,7 +30,7 @@ SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 def load_data():
-    # Load the existing data from Google Sheets
+    # Load existing data from Google Sheets
     data = conn.read(worksheet=SHEET_NAME, ttl=5)
     data = data.dropna(how="all")
     return data
@@ -52,51 +52,67 @@ with st.form(key='resource_form'):
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
     submit_button = st.form_submit_button(label='Generate Alert')
 
-# Validate the fields when submitting the form
+if geocode_button and address:
+    if OPENCAGE_API_KEY:
+        try:
+            geo_url = f"https://api.opencagedata.com/geocode/v1/json?q={address}&key={OPENCAGE_API_KEY}"
+            geo_response = requests.get(geo_url).json()
+            coords = geo_response['results'][0]['geometry']
+            st.success(f"📍 Coordinates found: {coords['lat']}, {coords['lng']}")
+
+            # ➡️ Add the map WITHOUT pandas
+            st.map([{"lat": coords['lat'], "lon": coords['lng']}])
+            # ⬅️ End of added map
+        except Exception as e:
+            st.error(f"Could not find coordinates. Check the address or try again.")
+    else:
+        st.error("❌ OpenCage API key not set. Cannot autofill coordinates.")
+
 if submit_button:
-    # Prepare prompt for generating the alert message
-    prompt = f"""
-    You are helping homeless users find resources. 
-    Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
-    It is available {hours}. 
-    Keep it positive and encouraging.
-    """
+    if client:
+        # Prepare prompt for generating the alert message
+        prompt = f"""
+        You are helping homeless users find resources. 
+        Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}.
+        It is available {hours}. 
+        Keep it positive and encouraging.
+        """
 
-        if client:
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[{"role": "system", "content": "You write short, friendly community alerts."},
-                              {"role": "user", "content": prompt}],
-                    temperature=0.7,
-                    max_tokens=100
-                )
-                message = response.choices[0].message.content.strip()
+        try:
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "system", "content": "You write short, friendly community alerts."},
+                          {"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=100
+            )
+            message = response.choices[0].message.content.strip()
 
-                # Build the alert dictionary
-                alert_entry = {
-                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                    "type": resource_type,
-                    "message": message,
-                    "location_name": location_name,
-                    "address": address,
-                    "hours": hours,
-                    "comments": []
-                }
+            # Build the alert dictionary
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+            alert = {
+                "timestamp": timestamp,
+                "type": resource_type,
+                "message": message,
+                "location_name": location_name,
+                "address": address,
+                "hours": hours,
+                "comments": []
+            }
 
-                # Append the new alert to the existing alerts
-                alerts = alerts.append(alert_entry, ignore_index=True)
+            # Load existing data and append the new alert
+            updated_alerts = pd.concat([alerts, pd.DataFrame([alert])], ignore_index=True)
 
-                # Update Google Sheets with the new data
-                conn.update(worksheet=SHEET_NAME, data=alerts)
+            # Update the Google Sheets with the new alert
+            conn.update(worksheet=SHEET_NAME, data=updated_alerts)
 
-                st.success("✅ Alert generated successfully!")
-                st.info(message)
+            st.success("✅ Alert generated and submitted successfully!")
+            st.info(message)
 
-            except Exception as e:
-                st.error(f"Error generating alert: {e}")
-        else:
-            st.error("❌ OpenAI API key not set. Cannot generate alerts.")
+        except Exception as e:
+            st.error(f"Error generating alert: {e}")
+    else:
+        st.error("❌ OpenAI API key not set. Cannot generate alerts.")
 
 st.divider()
 
@@ -133,3 +149,4 @@ st.download_button(
     file_name="alerts.txt",
     mime="text/plain"
 )
+
