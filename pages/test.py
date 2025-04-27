@@ -14,17 +14,6 @@ if "consent_given" not in st.session_state or not st.session_state.consent_given
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 
-# Allow manual entry if OpenCage API key is missing
-if not OPENCAGE_API_KEY:
-    OPENCAGE_API_KEY = st.text_input("🔑 Enter your OpenCage API Key:", type="password")
-
-# Initialize OpenAI client if key is available
-if OPENAI_API_KEY:
-    from openai import OpenAI
-    client = OpenAI(api_key=OPENAI_API_KEY)
-else:
-    client = None
-
 # Google Sheets Setup
 SHEET_NAME = "alerts"
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -67,6 +56,9 @@ with st.form(key='resource_form'):
     address = st.text_input("Address")
     hours = st.text_input("Hours Available (e.g., 9AM - 6PM)")
 
+    # Timer dropdown for users to select alert expiration time
+    timer_duration = st.selectbox("Select Timer Duration (Minutes)", [5, 10, 15, 30, 60, 120], index=4)  # Default 60 minutes
+
     geocode_button = st.form_submit_button("Autofill Coordinates with Address")
     submit_button = st.form_submit_button(label='Generate Alert')
 
@@ -105,6 +97,8 @@ if submit_button:
             message = response.choices[0].message.content.strip()
 
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+            expiration_time = datetime.now() + timedelta(minutes=timer_duration)  # Set expiration time
+
             alert = {
                 "timestamp": timestamp,
                 "type": resource_type,
@@ -112,6 +106,7 @@ if submit_button:
                 "location_name": location_name,
                 "address": address,
                 "hours": hours,
+                "expiration_time": expiration_time.strftime("%Y-%m-%d %H:%M")  # Store expiration time
             }
 
             updated_alerts = pd.concat([alerts, pd.DataFrame([alert])], ignore_index=True)
@@ -141,6 +136,21 @@ filtered_alerts = [
 if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
         st.markdown(f"**{idx}.** {alert['message']}")
+
+        # Calculate time remaining for each alert
+        expiration_time = datetime.strptime(alert['expiration_time'], "%Y-%m-%d %H:%M")
+        time_left = expiration_time - datetime.now()
+
+        # Display the remaining time
+        if time_left.total_seconds() > 0:
+            st.markdown(f"🕒 Time Remaining: {str(time_left).split('.')[0]}")  # Format time without milliseconds
+        else:
+            st.markdown("❌ This alert has expired and will be removed shortly.")
+
+            # Automatically remove expired alerts from the displayed list
+            alerts = alerts[alerts['timestamp'] != alert['timestamp']]
+            conn.update(worksheet=SHEET_NAME, data=alerts)
+
 else:
     st.info("No alerts to display.")
 
