@@ -101,4 +101,4 @@ else:
     Use the sidebar to navigate to features.
     """)
     
-st.logo(LOGO_URL, *, size="medium", link=None, icon_image=None)
+st.logo(LOGO_URL, size="medium", link=None, icon_image=None)
