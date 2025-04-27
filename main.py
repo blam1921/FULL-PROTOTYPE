@@ -6,11 +6,8 @@ LOGO_URL_SMALL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatc
 # Set page config
 st.set_page_config(page_title="WaterWatch Community", layout="wide")
 
-st.logo(
-    LOGO_URL_LARGE,
-    link="https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png",
-    icon_image=LOGO_URL_SMALL,
-)
+# Display the large logo
+st.image(LOGO_URL_LARGE, width=200)  # Adjust width as needed
 
 # 🔹 Global CSS Styling (Dark/Light Mode)
 st.markdown("""
