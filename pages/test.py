@@ -4,6 +4,7 @@ import requests
 from datetime import datetime, timedelta
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
+from openai import OpenAI
 
 # Check user consent
 if "consent_given" not in st.session_state or not st.session_state.consent_given:
