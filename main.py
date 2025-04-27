@@ -107,4 +107,6 @@ else:
     
 
 st.logo(LOGO_URL, size="large", link=None, icon_image=None)
-
+img[data-testid="stLogo"] {
+            height: 3.5rem;
+}
