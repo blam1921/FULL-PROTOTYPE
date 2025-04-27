@@ -23,13 +23,14 @@ if OPENAI_API_KEY:
 else:
     client = None
 
-# Google Sheets Setup
-SHEET_NAME = "alerts"
-conn = st.connection("gsheets", type=GSheetsConnection)
+# Set up Google Sheets connection
+gsheets = GSheetsConnection(sheet_name="alerts")  
 
-# Pull existing alerts from the Google Sheet
-existing_alerts = conn.read(worksheet=SHEET_NAME)
-alerts = existing_alerts if existing_alerts is not None else []
+# Sheet columns
+columns = ["ID", "Type", "Message", "Comments", "Location Name", "Address", "Hours Available", "Coordinates (Lat)", "Coordinates (Lng)"]
+
+# In-memory list of alerts
+alerts = []
 
 st.title("💧 LifeDrop - Community Alert System")
 st.caption("Manage and send alerts for water, meals, showers, and clinics.")
@@ -74,10 +75,8 @@ if submit_button:
         try:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You write short, friendly community alerts."},
-                    {"role": "user", "content": prompt}
-                ],
+                messages=[{"role": "system", "content": "You write short, friendly community alerts."},
+                          {"role": "user", "content": prompt}],
                 temperature=0.7,
                 max_tokens=100
             )
@@ -86,14 +85,28 @@ if submit_button:
             alert_entry = {
                 "type": resource_type,
                 "message": message,
-                "comments": []
+                "comments": [],
+                "location_name": location_name,
+                "address": address,
+                "hours": hours
             }
             alerts.append(alert_entry)
-            st.success("✅ Alert generated successfully!")
-            st.info(message)
 
-            # Save to Google Sheets
-            gsheets_conn.update(data=alerts)
+            # Write the alert entry to Google Sheets
+            gsheets.append_row([
+                len(alerts),  # ID (auto-incremented by length of alerts list)
+                resource_type,
+                message,
+                "",  # Empty comment field initially
+                location_name,
+                address,
+                hours,
+                coords['lat'] if 'coords' in locals() else "",
+                coords['lng'] if 'coords' in locals() else ""
+            ])
+
+            st.success("✅ Alert generated and saved to Google Sheets!")
+            st.info(message)
 
         except Exception as e:
             st.error(f"Error generating alert: {e}")
@@ -106,32 +119,37 @@ st.divider()
 st.header("📋 Generated Alerts")
 filter_type = st.selectbox("Filter by Type", ["All", "Water Station", "Free Meal", "Shower", "Health Clinic"])
 
+# Read alerts from Google Sheets
+alerts_from_sheet = gsheets.get_all_rows()
+
 filtered_alerts = [
-    alert for alert in alerts
-    if filter_type == "All" or alert["type"] == filter_type
+    alert for alert in alerts_from_sheet
+    if filter_type == "All" or alert["Type"] == filter_type
 ]
 
 if filtered_alerts:
     for idx, alert in enumerate(filtered_alerts, 1):
-        st.markdown(f"**{idx}.** {alert['message']}")
+        st.markdown(f"**{idx}.** {alert['Message']}")
 
         # Comments Section
         with st.expander("💬 Add/View Comments"):
-            for comment in alert['comments']:
+            comments = alert['Comments']
+            for comment in comments:
                 st.write(f"🗨️ {comment}")
             new_comment = st.text_input(f"Add a comment for alert #{idx}", key=f"comment_{idx}")
             if st.button(f"Submit Comment #{idx}", key=f"submit_comment_{idx}"):
-                alert['comments'].append(new_comment)
+                # Add comment to Google Sheets
+                updated_comments = comments + [new_comment]
+                gsheets.update_row(idx, {"Comments": updated_comments})
                 st.success("Comment added!")
-                # Save updated alerts with new comment to Google Sheets
-                gsheets_conn.update(data=alerts)
 else:
     st.info("No alerts to display.")
 
 # Download option
 st.download_button(
     label="📥 Download Alerts as Text File",
-    data="\n\n".join([a["message"] for a in alerts]),
+    data="\n\n".join([a["Message"] for a in alerts_from_sheet]),
     file_name="alerts.txt",
     mime="text/plain"
 )
+
