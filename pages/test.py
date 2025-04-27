@@ -99,7 +99,7 @@ if submit_button:
             st.info(message)
 
             # Save to Google Sheets
-            gsheets_conn.update(data=alerts)
+            conn.update(data=alerts)
 
         except Exception as e:
             st.error(f"Error generating alert: {e}")
@@ -130,7 +130,7 @@ if filtered_alerts:
                 alert['comments'].append(new_comment)
                 st.success("Comment added!")
                 # Save updated alerts with new comment to Google Sheets
-                gsheets_conn.update(data=alerts)
+                conn.update(data=alerts)
 else:
     st.info("No alerts to display.")
 
