@@ -6,3 +6,4 @@ pydeck
 Pillow
 matplotlib
 st-gsheets-connection
+re
