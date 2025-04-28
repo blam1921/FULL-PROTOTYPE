@@ -12,11 +12,6 @@ if "consent_given" not in st.session_state or not st.session_state.consent_given
     st.error("❌ Consent is required to use this app. Please return to the homepage.")
     st.stop()
 
-# Logo
-LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
-with st.sidebar:
-    st.image(LOGO_URL, width=300)
-
 # Language selection
 language = st.sidebar.selectbox("Language / Idioma", ["English", "Español"])
 
@@ -228,3 +223,8 @@ st.download_button(
     file_name="alerts.txt",
     mime="text/plain"
 )
+
+# Logo
+LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
+with st.sidebar:
+    st.image(LOGO_URL, width=300)
