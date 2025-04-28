@@ -12,7 +12,8 @@ if "consent_given" not in st.session_state or not st.session_state.consent_given
     st.stop()
 
 LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
-st.logo(LOGO_URL, size="large", link=None, icon_image=None)
+with st.sidebar:
+  st.image(LOGO_URL, width=300)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
