@@ -121,11 +121,6 @@ st.sidebar.title(msgs["nav_title"][language])
 
 page = st.sidebar.radio("", [msgs["map"][language], msgs["help_center"][language]])
 
-# Sidebar logo
-LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
-with st.sidebar:
-    st.image(LOGO_URL, width=300)
-
 # —————— 8. Utility Functions ——————
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0
@@ -293,3 +288,8 @@ elif page == msgs["help_center"][language]:
 
         # display the current list
         st.markdown(st.session_state["resources_md"])
+
+# Sidebar logo
+LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
+with st.sidebar:
+    st.image(LOGO_URL, width=300)
