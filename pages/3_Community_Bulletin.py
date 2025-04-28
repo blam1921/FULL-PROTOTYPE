@@ -55,6 +55,20 @@ msgs = {
     "download_bulletin": {"English": "📥 Download Bulletin as Text File", "Español": "📥 Descargar Boletín como Archivo de Texto"},
 }
 
+# Resource types multilingual
+resource_types = {
+    "English": ["Water Station", "Free Meal", "Shower", "Health Clinic"],
+    "Español": ["Estación de Agua", "Comida Gratis", "Ducha", "Clínica de Salud"]
+}
+
+# Map Spanish resource types back to English for AI
+resource_type_english_map = {
+    "Estación de Agua": "Water Station",
+    "Comida Gratis": "Free Meal",
+    "Ducha": "Shower",
+    "Clínica de Salud": "Health Clinic"
+}
+
 # API Keys
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
@@ -89,7 +103,7 @@ st.caption(msgs["caption_main"][language])
 
 st.header(msgs["add_new"][language])
 with st.form(key='resource_form'):
-    resource_type = st.selectbox(msgs["type_resource"][language], ["Water Station", "Free Meal", "Shower", "Health Clinic"])
+    resource_type = st.selectbox(msgs["type_resource"][language], resource_types[language])
     location_name = st.text_input(msgs["location_name"][language])
     address = st.text_input(msgs["address"][language])
     hours = st.text_input(msgs["hours"][language])
@@ -113,7 +127,10 @@ if address and OPENCAGE_API_KEY:
 # Submit Resource
 if submit_button:
     if client:
-        prompt = f"You are helping homeless users find resources. Write a very short, friendly SMS-style alert about a new {resource_type} available at {location_name}, {address}. It is available {hours}. Keep it positive and encouraging."
+        # Map back to English if necessary
+        resource_type_for_ai = resource_type_english_map.get(resource_type, resource_type)
+        
+        prompt = f"You are helping homeless users find resources. Write a very short, friendly SMS-style alert about a new {resource_type_for_ai} available at {location_name}, {address}. It is available {hours}. Keep it positive and encouraging."
         try:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -156,7 +173,7 @@ st.divider()
 st.header(msgs["community_announcements"][language])
 st.caption(msgs["safety_note"][language])
 
-filter_type = st.selectbox(msgs["filter"][language], ["All", "Water Station", "Free Meal", "Shower", "Health Clinic"])
+filter_type = st.selectbox(msgs["filter"][language], ["All"] + resource_types[language])
 alerts_dicts = alerts.to_dict(orient="records")
 
 filtered_alerts = [alert for alert in alerts_dicts if filter_type == "All" or alert["type"] == filter_type]
