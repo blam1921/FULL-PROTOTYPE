@@ -9,7 +9,7 @@ st.set_page_config(page_title="WaterWatch Community", layout="wide")
 st.markdown("""
 <style>
     html, body, [class*="css"] {
-        font-family: 'Segoe UI', sans-serif;
+        font-family: 'Segoe UI', serif;
     }
 
     @media (prefers-color-scheme: light) {
