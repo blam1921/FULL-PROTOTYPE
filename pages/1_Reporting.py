@@ -219,18 +219,7 @@ with trends_tab:
 
             # Top 5 ZIPs
             top_zips = trend_data.groupby('zipcode')['report_count'].sum().sort_values(ascending=False).head(5)
-            fig, ax = plt.subplots()
-            ax.bar(top_zips['Zip Code'], top_zips['Count'], color="#afc9e5")  # WaterWatch blue
-            ax.set_title("Top Zip Codes", color="#5a7694")
-            ax.set_xlabel("Zip Code", color="#5a7694")
-            ax.set_ylabel("Count", color="#5a7694")
-            
-            # Set background color
-            fig.patch.set_facecolor("#f2e9dc")
-            ax.set_facecolor("#f2e9dc")
-            
-            # Show in Streamlit
-            st.pyplot(fig)
+            st.bar_chart(top_zips)
 
             st.markdown("---")
             st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
