@@ -1,6 +1,6 @@
 import streamlit as st
 
-LOGO_URL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
+LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
 
 # Set page config
 st.set_page_config(page_title="WaterWatch Community", layout="wide")
