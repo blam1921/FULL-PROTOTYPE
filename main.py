@@ -14,7 +14,7 @@ st.markdown("""
 
     @media (prefers-color-scheme: light) {
         html, body, [class*="css"] {
-            background-color: #f8fcfd;
+            background-color: #F4E8D2; /* Tan color */
             color: #000000;
         }
         .consent-box {
@@ -26,6 +26,7 @@ st.markdown("""
             color: white;
         }
     }
+
 
     @media (prefers-color-scheme: dark) {
         html, body, [class*="css"] {
