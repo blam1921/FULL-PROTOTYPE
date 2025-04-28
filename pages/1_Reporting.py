@@ -82,7 +82,7 @@ with report_tab:
                 st.error("❌ Please enter a valid ZIP code (e.g., 12345 or 12345-6789).")
             else:
                 # Ensure optional fields are handled properly (e.g., symptoms can be empty)
-                symptoms = symptoms if symptoms else ""  # Default to "N/A" if empty
+                symptoms = symptoms if symptoms else "N/A"  # Default to "N/A" if empty
 
                 # Build the report dictionary
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
