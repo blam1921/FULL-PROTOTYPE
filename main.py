@@ -107,12 +107,3 @@ else:
     
 with st.sidebar:
   st.image(LOGO_URL, width=300)
-
-st.sidebar.markdown(
-    """
-    <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png" style="width: 80%; margin-bottom: 20px;">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
