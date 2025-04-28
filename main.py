@@ -51,8 +51,8 @@ def show_consent_form():
         <p style='text-align: center;'>Before using this app, please review and agree to the following:</p>
         <ul>
             <li>We collect anonymous information to improve the app.</li>
-            <li>No personal data is stored.</li>
-            <li>Your contributions help support the community.</li>
+            <li>Data is stored at your own discretion.</li>
+            <li>Your contributions are shared with the community.</li>
         </ul>
         <p><b>Consent is required to use WaterWatch Community Support System.</b></p>
     </div>
