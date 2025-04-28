@@ -106,5 +106,5 @@ else:
     )
     
 with st.sidebar:
-  st.image(LOGO_URL, width=200)
+  st.image(LOGO_URL, width=300)
 
