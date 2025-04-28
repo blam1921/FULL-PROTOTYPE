@@ -14,8 +14,8 @@ st.markdown("""
 
     @media (prefers-color-scheme: light) {
         html, body, [class*="css"] {
-            background-color: #F4E8D2;
-            color: #F4E8D2;
+            background-color: #f8fcfd;
+            color: #000000;
         }
         .consent-box {
             background-color: #e0f7fa;
@@ -107,4 +107,3 @@ else:
     
 with st.sidebar:
   st.image(LOGO_URL, width=300)
-
