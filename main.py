@@ -15,7 +15,7 @@ st.markdown("""
     @media (prefers-color-scheme: light) {
         html, body, [class*="css"] {
             background-color: #F4E8D2;
-            color: #000000;
+            color: #F4E8D2;
         }
         .consent-box {
             background-color: #e0f7fa;
