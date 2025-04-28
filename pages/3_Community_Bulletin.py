@@ -69,7 +69,7 @@ resource_type_english_map = {
     "Clínica de Salud": "Health Clinic"
 }
 
-# API Keys
+# API keys
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 client = OpenAI()
@@ -129,13 +129,22 @@ if submit_button:
     if client:
         # Map back to English if necessary
         resource_type_for_ai = resource_type_english_map.get(resource_type, resource_type)
-        
-        prompt = f"You are helping homeless users find resources. Write a very short, friendly SMS-style alert about a new {resource_type_for_ai} available at {location_name}, {address}. It is available {hours}. Keep it positive and encouraging."
+
+        # Dynamic system and prompt based on language
+        if language == "Español":
+            system_message = "Eres un asistente que escribe alertas comunitarias cortas y amistosas en español."
+            user_prompt = f"Estás ayudando a personas sin hogar a encontrar recursos. Escribe una alerta estilo SMS corta y positiva sobre un nuevo {resource_type} disponible en {location_name}, {address}. Está disponible {hours}."
+        else:
+            system_message = "You write short, friendly community alerts."
+            user_prompt = f"You are helping homeless users find resources. Write a very short, friendly SMS-style alert about a new {resource_type_for_ai} available at {location_name}, {address}. It is available {hours}. Keep it positive and encouraging."
+
         try:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": "You write short, friendly community alerts."},
-                          {"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": user_prompt}
+                ],
                 temperature=0.7,
                 max_tokens=100
             )
