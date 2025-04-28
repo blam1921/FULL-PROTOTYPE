@@ -9,12 +9,12 @@ st.set_page_config(page_title="WaterWatch Community", layout="wide")
 st.markdown("""
 <style>
     html, body, [class*="css"] {
-        font-family: 'Segoe UI', serif;
+        font-family: 'Segoe UI', sans-serif;
     }
 
     @media (prefers-color-scheme: light) {
         html, body, [class*="css"] {
-            background-color: #F4E8D2; /* Tan color */
+            background-color: #f8fcfd;
             color: #000000;
         }
         .consent-box {
@@ -26,7 +26,6 @@ st.markdown("""
             color: white;
         }
     }
-
 
     @media (prefers-color-scheme: dark) {
         html, body, [class*="css"] {
