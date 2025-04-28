@@ -11,7 +11,7 @@ import pydeck as pdk
 import requests
 import math
 
-LOGO_URL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
+LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
 st.logo(LOGO_URL, size="large", link=None, icon_image=None)
 
 # Correct way to fetch key
