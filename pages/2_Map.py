@@ -14,8 +14,9 @@ import math
 import os
 
 LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
-st.logo(LOGO_URL, size="large", link=None, icon_image=None)
-
+with st.sidebar:
+  st.image(LOGO_URL, width=300)
+    
 # OpenAI Key
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
