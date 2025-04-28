@@ -11,7 +11,7 @@ if "consent_given" not in st.session_state or not st.session_state.consent_given
     st.error("❌ Consent is required to use this app. Please return to the homepage.")
     st.stop()
 
-LOGO_URL = "https://github.com/blam1921/FULL-PROTOTYPE/blob/main/waterwatchlogo.png?raw=true"
+LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
 st.logo(LOGO_URL, size="large", link=None, icon_image=None)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
