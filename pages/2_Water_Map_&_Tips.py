@@ -116,7 +116,7 @@ msgs = {
 }
 
 # —————— 7. Sidebar & Navigation ——————
-language = st.sidebar.selectbox(msgs["nav_title"]["English"], ["English", "Español"])
+language = st.sidebar.selectbox("Language / Idioma", ["English", "Español"])
 st.sidebar.title(msgs["nav_title"][language])
 
 page = st.sidebar.radio("", [msgs["map"][language], msgs["help_center"][language]])
