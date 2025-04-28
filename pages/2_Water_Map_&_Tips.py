@@ -24,12 +24,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ✅ 3. Sidebar logo
-LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
-with st.sidebar:
-    st.image(LOGO_URL, width=300)
-
-# ✅ 4. Custom styling
+# ✅ 3. Custom styling
 st.markdown(
     """
     <style>
@@ -47,10 +42,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ✅ 5. Water image for Help Center
+# ✅ 4. Water image for Help Center
 water_image = "https://images.unsplash.com/photo-1589927986089-35812388d1b4"
 
-# —————— 6. Dynamic Resources Pool & Helper ——————
+# —————— 5. Dynamic Resources Pool & Helper ——————
 RESOURCE_POOL = [
     ("Charity: Water",                          "https://www.charitywater.org"),
     ("WaterAid",                                "https://www.wateraid.org"),
@@ -93,7 +88,7 @@ def get_random_resources(pool, count: int = 5) -> str:
     picks = random.sample(pool, k=n)
     return "\n".join(f"- [{name}]({url})" for name, url in picks)
 
-# —————— 7. Multilingual Setup ——————
+# —————— 6. Multilingual Setup ——————
 msgs = {
     "nav_title":      {"English": "Navigation",            "Español": "Navegación"},
     "map":            {"English": "Find Water Nearby",      "Español": "Encontrar Agua Cercana"},
@@ -120,13 +115,18 @@ msgs = {
     }
 }
 
-# —————— 8. Sidebar & Navigation ——————
+# —————— 7. Sidebar & Navigation ——————
 language = st.sidebar.selectbox(msgs["nav_title"]["English"], ["English", "Español"])
 st.sidebar.title(msgs["nav_title"][language])
 
 page = st.sidebar.radio("", [msgs["map"][language], msgs["help_center"][language]])
 
-# —————— 9. Utility Functions ——————
+# Sidebar logo
+LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
+with st.sidebar:
+    st.image(LOGO_URL, width=300)
+
+# —————— 8. Utility Functions ——————
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
