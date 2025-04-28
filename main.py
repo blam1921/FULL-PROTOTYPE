@@ -5,47 +5,35 @@ LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads
 # Set page config
 st.set_page_config(page_title="WaterWatch Community", layout="wide")
 
-# 🔹 Global CSS Styling (Dark/Light Mode)
-st.markdown("""
+# Get Streamlit's current theme settings
+primary_color = st.get_option('theme.primaryColor')
+background_color = st.get_option('theme.backgroundColor')
+text_color = st.get_option('theme.textColor')
+secondary_background_color = st.get_option('theme.secondaryBackgroundColor')
+
+# 🔹 Global CSS Styling (using Streamlit's theme settings)
+st.markdown(f"""
 <style>
-    html, body, [class*="css"] {
+    html, body, [class*="css"] {{
         font-family: 'Segoe UI', sans-serif;
-    }
+    }}
 
-    @media (prefers-color-scheme: light) {
-        html, body, [class*="css"] {
-            background-color: #f8fcfd;
-            color: #000000;
-        }
-        .consent-box {
-            background-color: #e0f7fa;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .stButton > button {
-            background-color: #00acc1;
-            color: white;
-        }
-    }
+    .consent-box {{
+        padding: 2rem;
+        border-radius: 1rem;
+        max-width: 700px;
+        margin: auto;
+        background-color: {secondary_background_color};
+        color: {text_color};
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }}
 
-    @media (prefers-color-scheme: dark) {
-        html, body, [class*="css"] {
-            background-color: #121212;
-            color: #ffffff;
-        }
-        .consent-box {
-            background-color: #263238;
-            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
-        }
-        .stButton > button {
-            background-color: #26c6da;
-            color: #000000;
-        }
-    }
-
-    .stButton > button {
+    .stButton > button {{
+        background-color: {primary_color};
+        color: white;
         border-radius: 0.5rem;
         padding: 0.5rem 1.2rem;
-    }
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -58,7 +46,7 @@ if "analytics_consent" not in st.session_state:
 # 📢 Consent Form
 def show_consent_form():
     st.markdown("""
-    <div class="consent-box" style='padding: 2rem; border-radius: 1rem; max-width: 700px; margin: auto;'>
+    <div class="consent-box">
         <h2 style='text-align: center;'>🔒 Consent Required</h2>
         <p style='text-align: center;'>Before using this app, please review and agree to the following:</p>
         <ul>
@@ -91,9 +79,6 @@ if not st.session_state.consent_given:
     show_consent_form()
 else:
     # Sidebar and Main Content appear after consent
-    # st.sidebar.title("Navigation")
-    # page = st.sidebar.radio("Go to", ["Home", "Alerts"])
-
     st.title("💧 WaterWatch Community Support System")
     st.markdown("""
     Welcome to **WaterWatch**, a community support hub for accessing and logging water resources, meals, showers, and clinics.
@@ -106,4 +91,4 @@ else:
     )
     
 with st.sidebar:
-  st.image(LOGO_URL, width=300)
+    st.image(LOGO_URL, width=300)
