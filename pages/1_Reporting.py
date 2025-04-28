@@ -200,7 +200,7 @@ with trends_tab:
             # Plot trends for the selected ZIP code
             st.subheader(f"📍 Reports Over Time for ZIP Code: {selected_zip}")
             fig, ax = plt.subplots(figsize=(12, 6))
-            ax.plot(selected_data['week'], selected_data['report_count'], marker='o', color='b', linestyle='-', linewidth=2)
+            ax.plot(selected_data['week'], selected_data['report_count'], marker='o', color='#5a7694', linestyle='-', linewidth=2)
 
             # Show every Nth week
             nth_week = 4
