@@ -12,7 +12,6 @@ import requests
 import math
 
 LOGO_URL = "https://raw.githubusercontent.com/blam1921/FULL-PROTOTYPE/refs/heads/main/waterwatchlogov2.png"
-st.logo(LOGO_URL, size="large", link=None, icon_image=None)
 
 # Correct way to fetch key
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
@@ -25,6 +24,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+with st.sidebar:
+  st.image(LOGO_URL, width=300)
 
 # ✅ 2. Add custom "Clean Water Theme" styling
 st.markdown(
