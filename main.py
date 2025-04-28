@@ -105,5 +105,6 @@ else:
         unsafe_allow_html=True
     )
     
-
-st.logo(LOGO_URL, size="large", link=None, icon_image=None)
+with st.sidebar:
+  st.image("LOGO_URL", width=150)
+# st.logo(LOGO_URL, size="large", link=None, icon_image=None)
