@@ -107,3 +107,12 @@ else:
     
 with st.sidebar:
   st.image(LOGO_URL, width=300)
+
+st.sidebar.markdown(
+    """
+    <div style="text-align: center;">
+        <img src=LOGO_URL style="width: 80%; margin-bottom: 20px;">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
