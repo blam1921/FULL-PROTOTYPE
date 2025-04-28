@@ -92,11 +92,17 @@ msgs = {
 - [Downtown Streets Team](https://www.streetsteam.org/)
 - [Sacred Heart Community Service](https://sacredheartcs.org/)
 - [Water.org](https://water.org)
+- [Engineers Without Borders](https://www.ewb-usa.org)
+- [World Vision: Clean Water](https://www.worldvision.org)
+- [Global Water Partnership](https://www.gwp.org)
 """,
         "Español": """
 - [Downtown Streets Team](https://www.streetsteam.org/)
 - [Sacred Heart Community Service](https://sacredheartcs.org/)
 - [Water.org](https://water.org)
+- [Engineers Without Borders](https://www.ewb-usa.org)
+- [World Vision: Clean Water](https://www.worldvision.org)
+- [Global Water Partnership](https://www.gwp.org)
 """
     }
 }
@@ -169,10 +175,10 @@ if page == msgs["map"][language]:
                 "ScatterplotLayer",
                 data=filtered,
                 get_position=["lon", "lat"],
-                get_radius=25,
+                get_radius=30,
                 pickable=True,
                 auto_highlight=True,
-                radius_scale=3,
+                radius_scale=3.5,
                 radius_min_pixels=2,
                 radius_max_pixels=20,
                 get_fill_color=[0, 128, 255, 200],
