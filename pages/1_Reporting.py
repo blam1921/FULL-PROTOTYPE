@@ -51,7 +51,7 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Tabs
 report_tab, gallery_tab, table_tab, trends_tab = st.tabs(
-    ["📋 Report", "🖼️ Gallery", "📊 Tabular View", "📈 Community Trends + AI Analysis"]
+    ["📋 Report", "🖼️ Gallery", "📊 Tabular View", "📈 AI Analysis & Data"]
 )
 
 # REPORT TAB
@@ -183,7 +183,7 @@ with table_tab:
 
 # COMBINED TRENDS + AI ANALYSIS TAB
 with trends_tab:
-    st.header("📈 Community Trends and AI Analysis by Zip Code")
+    st.header("📈 AI Analysis and Community Trends")
     data = load_data()
     if not data.empty:
         # Prepare data
@@ -195,6 +195,7 @@ with trends_tab:
         # Dropdown to select ZIP code
         selected_zip = st.selectbox("Select a ZIP Code", zipcodes)
         selected_data = trend_data[trend_data['zipcode'] == selected_zip]
+       
         st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
         
         if not selected_data.empty:
