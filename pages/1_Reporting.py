@@ -239,7 +239,9 @@ with trends_tab:
                     st.markdown(response.choices[0].message.content)
                 except Exception as e:
                     st.error(f"Error during analysis: {e}")
+        
             
+            st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
             # Plot trends for the selected ZIP code
             st.subheader(f"📍 Reports Over Time for ZIP Code: {selected_zip}")
             fig, ax = plt.subplots(figsize=(12, 6))
@@ -265,7 +267,7 @@ with trends_tab:
             st.bar_chart(top_zips)
 
             st.markdown("---")
-            st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
+            
 
         else:
             st.info("No data available for the selected ZIP code.")
