@@ -197,34 +197,7 @@ with trends_tab:
         selected_data = trend_data[trend_data['zipcode'] == selected_zip]
 
         if not selected_data.empty:
-            # Plot trends for the selected ZIP code
-            st.subheader(f"📍 Reports Over Time for ZIP Code: {selected_zip}")
-            fig, ax = plt.subplots(figsize=(12, 6))
-            ax.plot(selected_data['week'], selected_data['report_count'], marker='o', color='#5a7694', linestyle='-', linewidth=2)
-
-            # Show every Nth week
-            nth_week = 4
-            week_labels = selected_data['week'][::nth_week]
-            ax.set_xticks(selected_data['week'][::nth_week])
-            ax.set_xticklabels(week_labels, rotation=45, ha='right', fontsize=10)
-
-            ax.set_xlabel("Week", fontsize=12)
-            ax.set_ylabel("Number of Reports", fontsize=12)
-            ax.set_title(f"Water Source Reports Over Time - {selected_zip}", fontsize=14)
-
-            st.pyplot(fig)
-
-            st.markdown("---")
-            st.subheader("Top ZIP Codes by Total Reports")
-
-            # Top 5 ZIPs
-            top_zips = trend_data.groupby('zipcode')['report_count'].sum().sort_values(ascending=False).head(5)
-            st.bar_chart(top_zips)
-
-            st.markdown("---")
-            st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
-
-            # Button to trigger AI Analysis
+             # Button to trigger AI Analysis
             aisubmit = st.button("🔍 Analyze This ZIP Code")
             if aisubmit:
                 try:
@@ -266,6 +239,33 @@ with trends_tab:
                     st.markdown(response.choices[0].message.content)
                 except Exception as e:
                     st.error(f"Error during analysis: {e}")
+            
+            # Plot trends for the selected ZIP code
+            st.subheader(f"📍 Reports Over Time for ZIP Code: {selected_zip}")
+            fig, ax = plt.subplots(figsize=(12, 6))
+            ax.plot(selected_data['week'], selected_data['report_count'], marker='o', color='#5a7694', linestyle='-', linewidth=2)
+
+            # Show every Nth week
+            nth_week = 4
+            week_labels = selected_data['week'][::nth_week]
+            ax.set_xticks(selected_data['week'][::nth_week])
+            ax.set_xticklabels(week_labels, rotation=45, ha='right', fontsize=10)
+
+            ax.set_xlabel("Week", fontsize=12)
+            ax.set_ylabel("Number of Reports", fontsize=12)
+            ax.set_title(f"Water Source Reports Over Time - {selected_zip}", fontsize=14)
+
+            st.pyplot(fig)
+
+            st.markdown("---")
+            st.subheader("Top ZIP Codes by Total Reports")
+
+            # Top 5 ZIPs
+            top_zips = trend_data.groupby('zipcode')['report_count'].sum().sort_values(ascending=False).head(5)
+            st.bar_chart(top_zips)
+
+            st.markdown("---")
+            st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
 
         else:
             st.info("No data available for the selected ZIP code.")
