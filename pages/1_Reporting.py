@@ -195,7 +195,8 @@ with trends_tab:
         # Dropdown to select ZIP code
         selected_zip = st.selectbox("Select a ZIP Code", zipcodes)
         selected_data = trend_data[trend_data['zipcode'] == selected_zip]
-
+        st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
+        
         if not selected_data.empty:
              # Button to trigger AI Analysis
             aisubmit = st.button("🔍 Analyze This ZIP Code")
@@ -240,8 +241,6 @@ with trends_tab:
                 except Exception as e:
                     st.error(f"Error during analysis: {e}")
         
-            
-            st.subheader(f"🤖 AI Analysis for ZIP Code {selected_zip}")
             # Plot trends for the selected ZIP code
             st.subheader(f"📍 Reports Over Time for ZIP Code: {selected_zip}")
             fig, ax = plt.subplots(figsize=(12, 6))
