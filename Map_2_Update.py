@@ -6,7 +6,7 @@ import requests
 import math
 
 # ✅ Set OpenAI API Key
-openai.api_key = "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"  # <-- Your real OpenAI key here
+openai.api_key = ""  # <-- Your real OpenAI key here
 
 # ✅ 1. Always set page config first!
 st.set_page_config(
